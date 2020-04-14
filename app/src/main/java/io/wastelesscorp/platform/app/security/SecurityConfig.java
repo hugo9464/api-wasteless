@@ -11,12 +11,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
@@ -40,8 +37,14 @@ public class SecurityConfig {
             ServerHttpSecurity http,
             ReactiveUserDetailsService userDetailService,
             JwtTokenService jwtTokenService) {
+        // TODO can be simplified I think
         return http.authorizeExchange()
-                .pathMatchers("/api/auth/1/signup")
+                .pathMatchers(
+                        "/api/auth/1/signup",
+                        "/swagger/**",
+                        "/webjars/**",
+                        "/v3/**",
+                        "/swagger-ui.html")
                 .permitAll()
                 .and()
                 .authorizeExchange()

@@ -1,7 +1,6 @@
 package io.wastelesscorp.platform.app.security.controller;
 
 import io.wastelesscorp.platform.atoms.user.api.UserService;
-import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;

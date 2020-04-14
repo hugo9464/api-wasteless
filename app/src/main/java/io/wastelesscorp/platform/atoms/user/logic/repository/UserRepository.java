@@ -2,11 +2,8 @@ package io.wastelesscorp.platform.atoms.user.logic.repository;
 
 import static com.mongodb.client.model.Filters.eq;
 
-import com.google.common.collect.ImmutableSet;
-import com.mongodb.QueryBuilder;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.wastelesscorp.platform.atoms.user.api.User;
-import org.springframework.data.mongodb.repository.Query;
 import reactor.core.publisher.Mono;
 
 public class UserRepository {

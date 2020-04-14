@@ -12,7 +12,6 @@ import io.wastelesscorp.platform.app.controller.ControllerConfig;
 import io.wastelesscorp.platform.app.security.SecurityConfig;
 import io.wastelesscorp.platform.atoms.user.logic.UserServiceConfig;
 import io.wastelesscorp.platform.atoms.weightedwaste.logic.WeightedWasteServiceConfig;
-import java.time.Clock;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;

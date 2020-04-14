@@ -1,6 +1,5 @@
 package io.wastelesscorp.platform.atoms.user.logic;
 
-import static com.mongodb.client.model.Filters.and;
 import static io.wastelesscorp.platform.atoms.user.api.Role.STANDARD_USER;
 
 import com.google.common.collect.ImmutableSet;
@@ -13,9 +12,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
