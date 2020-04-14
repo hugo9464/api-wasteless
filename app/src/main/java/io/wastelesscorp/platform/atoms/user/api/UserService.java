@@ -2,7 +2,7 @@ package io.wastelesscorp.platform.atoms.user.api;
 
 import reactor.core.publisher.Mono;
 
-/** The service responsible to handle users. */
+/** The service responsible to manage users. */
 public interface UserService {
     /**
      * Stores a user.

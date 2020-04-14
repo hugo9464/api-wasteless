@@ -24,6 +24,8 @@ class AuthenticationControllerTest {
     private static final String EMAIL = "email@email.com";
     private static final String PASSWORD = "password";
     private static final String USER_ID = "id";
+    private static final String FIRSTNAME = "firstname";
+    private static final String LASTNAME = "lastname";
     @MockBean private UserService userService;
 
     @Autowired private JwtTokenService jwtTokenService;
@@ -43,7 +45,9 @@ class AuthenticationControllerTest {
         this.webClient
                 .post()
                 .uri("/api/auth/1/signup")
-                .body(Mono.just(SignupRequestJson.of(EMAIL, PASSWORD)), SignupRequestJson.class)
+                .body(
+                        Mono.just(SignupRequestJson.of(EMAIL, FIRSTNAME, LASTNAME, PASSWORD)),
+                        SignupRequestJson.class)
                 .exchange()
                 .expectStatus()
                 .isOk();
@@ -112,6 +116,8 @@ class AuthenticationControllerTest {
                 User.of(
                         USER_ID,
                         EMAIL,
+                        FIRSTNAME,
+                        LASTNAME,
                         passwordEncoder.encode(PASSWORD),
                         ImmutableSet.of(Role.STANDARD_USER));
         when(userService.findByEmail(any()))

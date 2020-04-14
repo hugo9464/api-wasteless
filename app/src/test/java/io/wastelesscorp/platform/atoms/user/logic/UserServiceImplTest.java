@@ -22,9 +22,16 @@ import reactor.test.StepVerifier;
 @SpringBootTest(classes = UserServiceConfig.class)
 class UserServiceImplTest {
     private static final CreateUserRequest CREATE_REQUEST =
-            CreateUserRequest.of("email", "password", ImmutableSet.of(STANDARD_USER));
+            CreateUserRequest.of(
+                    "email", "password", "firstname", "lastname", ImmutableSet.of(STANDARD_USER));
     private static final User EXPECTED_USER =
-            User.of("id", "email", "password", ImmutableSet.of(STANDARD_USER));
+            User.of(
+                    "id",
+                    "email",
+                    "password",
+                    "firstname",
+                    "lastname",
+                    ImmutableSet.of(STANDARD_USER));
 
     @Autowired UserService service;
     @Autowired MongoCollection<User> userMongoCollection;
