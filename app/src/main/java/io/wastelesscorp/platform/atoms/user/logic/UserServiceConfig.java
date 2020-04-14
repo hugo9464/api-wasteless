@@ -4,7 +4,7 @@ import com.mongodb.reactivestreams.client.MongoCollection;
 import io.wastelesscorp.platform.atoms.user.api.User;
 import io.wastelesscorp.platform.atoms.user.logic.repository.UserRepository;
 import io.wastelesscorp.platform.support.mongo.MongoConfig;
-import io.wastelesscorp.platform.support.mongo.MongoConfig.CollectionFactory;
+import io.wastelesscorp.platform.support.mongo.CollectionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 

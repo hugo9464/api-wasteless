@@ -1,11 +1,8 @@
 package io.wastelesscorp.platform.support.mongo;
 
-import static com.mongodb.MongoClient.getDefaultCodecRegistry;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -15,33 +12,39 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
-import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.MongoDatabase;
-import java.lang.reflect.Type;
-import org.bson.codecs.configuration.CodecRegistries;
-import org.bson.codecs.configuration.CodecRegistry;
+import java.time.Clock;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 
 @Configuration
-@Import(MongoConfig.CollectionFactory.class)
+@Import(DefaultCollectionFactory.class)
 public class MongoConfig {
     @Bean
     public MongoClient mongoClient(@Value("${mongodb.url}") String mongoUrl) {
         return MongoClients.create(mongoUrl);
     }
 
+    @Primary
+    @Profile("test")
     @Bean
-    public MongoDatabase mongoDatabase(MongoClient mongoClient) {
-        // TODO Randomize for test
-        return mongoClient.getDatabase("wastelessdev");
+    CollectionFactory testCollectionFactory(DefaultCollectionFactory defaultFactory) {
+        return new TestCollectionFactory(defaultFactory, clock());
     }
 
-    @Qualifier("codecRegistryObjectMapper")
     @Bean
+    public MongoDatabase mongoDatabase(
+            MongoClient mongoClient, @Value("${mongodb.database}") String databaseName) {
+        return mongoClient.getDatabase(databaseName);
+    }
+
+    @Bean
+    @Qualifier("codecRegistryObjectMapper")
     ObjectMapper codecRegistryObjectMapper() {
         // TODO Find a way to handle mongo object id in a hided way
         return new ObjectMapper()
@@ -58,33 +61,8 @@ public class MongoConfig {
                 .registerModule(new ParameterNamesModule());
     }
 
-    public static final class CollectionFactory {
-        private final MongoDatabase mongoDatabase;
-        private final ObjectMapper codecRegistryObjectMapper;
-
-        CollectionFactory(MongoDatabase mongoDatabase, ObjectMapper codecRegistryObjectMapper) {
-            this.mongoDatabase = mongoDatabase;
-            this.codecRegistryObjectMapper = codecRegistryObjectMapper;
-        }
-
-        public <T> MongoCollection<T> get(String collectionName, Class<T> clazz) {
-            return mongoDatabase
-                    .withCodecRegistry(getCodecRegistry(clazz))
-                    .getCollection(collectionName, clazz);
-        }
-
-        private <T> CodecRegistry getCodecRegistry(Class<T> clazz) {
-            return CodecRegistries.fromRegistries(
-                    getDefaultCodecRegistry(),
-                    CodecRegistries.fromProviders(
-                            new JacksonGenericCodecProvider(
-                                    codecRegistryObjectMapper,
-                                    new TypeReference<T>() {
-                                        @Override
-                                        public Type getType() {
-                                            return clazz;
-                                        }
-                                    })));
-        }
+    @Bean
+    public Clock clock() {
+        return Clock.systemDefaultZone();
     }
 }

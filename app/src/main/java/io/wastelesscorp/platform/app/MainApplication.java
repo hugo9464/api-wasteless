@@ -12,6 +12,7 @@ import io.wastelesscorp.platform.app.controller.ControllerConfig;
 import io.wastelesscorp.platform.app.security.SecurityConfig;
 import io.wastelesscorp.platform.atoms.user.logic.UserServiceConfig;
 import io.wastelesscorp.platform.atoms.weightedwaste.logic.WeightedWasteServiceConfig;
+import java.time.Clock;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -22,11 +23,7 @@ import org.springframework.web.reactive.config.EnableWebFlux;
 @SpringBootApplication
 @EnableWebFluxSecurity
 @EnableWebFlux
-@Import({
-    ControllerConfig.class,
-    ServiceConfig.class,
-    SecurityConfig.class
-})
+@Import({ControllerConfig.class, SecurityConfig.class, ServiceConfig.class})
 public class MainApplication {
     public static void main(String[] args) {
         SpringApplication.run(MainApplication.class, args);
@@ -37,10 +34,8 @@ public class MainApplication {
         @Bean
         public ObjectMapper objectMapper() {
             ObjectMapper mapper = new ObjectMapper();
-            // register module with object mapper
             mapper.registerModule(new GuavaModule());
             mapper.registerModule(new Jdk8Module());
-
             mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE)
                     .setVisibility(PropertyAccessor.CREATOR, JsonAutoDetect.Visibility.ANY)
                     .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
