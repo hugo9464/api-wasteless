@@ -19,6 +19,6 @@ final class TestCollectionFactory implements CollectionFactory {
 
     public <T> MongoCollection<T> get(String collectionName, Class<T> clazz) {
         return defaultCollectionFactory.get(
-                collectionName + "-" + clock.instant().getNano(), clazz);
+                collectionName + "_" + clock.instant().getNano(), clazz);
     }
 }

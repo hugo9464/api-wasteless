@@ -30,11 +30,11 @@ class UserServiceImplTest {
                     ImmutableSet.of(STANDARD_USER));
 
     @Autowired UserService service;
-    @Autowired MongoCollection<User> userMongoCollection;
+    @Autowired MongoCollection<User> collection;
 
     @BeforeEach
     public void setUp() {
-        Mono.from(userMongoCollection.drop()).block();
+        Mono.from(collection.drop()).block();
     }
 
     @Test

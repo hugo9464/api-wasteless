@@ -1,11 +1,16 @@
 package io.wastelesscorp.platform.support.mongo;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.DeserializationFeature;
+import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
+import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+import static com.fasterxml.jackson.annotation.PropertyAccessor.ALL;
+import static com.fasterxml.jackson.annotation.PropertyAccessor.CREATOR;
+import static com.fasterxml.jackson.annotation.PropertyAccessor.FIELD;
+import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
+import static com.fasterxml.jackson.databind.DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS;
+import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -48,13 +53,13 @@ public class MongoConfig {
     ObjectMapper codecRegistryObjectMapper() {
         // TODO Find a way to handle mongo object id in a hided way
         return new ObjectMapper()
-                .setSerializationInclusion(Include.NON_NULL)
-                .setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE)
-                .setVisibility(PropertyAccessor.CREATOR, JsonAutoDetect.Visibility.ANY)
-                .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
-                .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
-                .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .setSerializationInclusion(NON_NULL)
+                .setVisibility(ALL, NONE)
+                .setVisibility(CREATOR, ANY)
+                .setVisibility(FIELD, ANY)
+                .configure(WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
+                .configure(READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
+                .configure(FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .registerModule(new GuavaModule())
                 .registerModule(new JavaTimeModule())
                 .registerModule(new Jdk8Module())
