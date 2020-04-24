@@ -6,6 +6,7 @@ import static com.fasterxml.jackson.annotation.PropertyAccessor.ALL;
 import static com.fasterxml.jackson.annotation.PropertyAccessor.CREATOR;
 import static com.fasterxml.jackson.annotation.PropertyAccessor.FIELD;
 import static io.swagger.v3.oas.models.security.SecurityScheme.In.HEADER;
+import static io.swagger.v3.oas.models.security.SecurityScheme.Type.HTTP;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -37,6 +38,34 @@ import org.springframework.web.reactive.config.WebFluxConfigurer;
 
 @EnableWebFlux
 public class WebFluxConfig {
+
+    @Bean
+    WebFluxConfigurer webFluxConfigurer(
+            Jackson2JsonDecoder jackson2JsonDecoder, Jackson2JsonEncoder jackson2JsonEncoder) {
+        return new WebFluxConfigurer() {
+            @Override
+            public void configureHttpMessageCodecs(ServerCodecConfigurer configurer) {
+                configurer.defaultCodecs().jackson2JsonDecoder(jackson2JsonDecoder);
+                configurer.defaultCodecs().jackson2JsonEncoder(jackson2JsonEncoder);
+            }
+        };
+    }
+
+    @Bean
+    public OpenAPI wastelessOpenAPI() {
+        return new OpenAPI()
+                .components(
+                        new Components()
+                                .addSecuritySchemes(
+                                        "bearerAuth",
+                                        new SecurityScheme()
+                                                .type(HTTP)
+                                                .scheme("bearer")
+                                                .in(HEADER)
+                                                .bearerFormat("JWT")))
+                .security(ImmutableList.of(new SecurityRequirement().addList("bearerAuth")));
+    }
+
     @Bean
     public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
@@ -67,7 +96,7 @@ public class WebFluxConfig {
         public Class<ImmutableTable> handledType() {
             return ImmutableTable.class;
         }
-    } // end class TableSerializer
+    }
 
     public static class TableDeserializer extends JsonDeserializer<ImmutableTable<?, ?, ?>> {
         @Override
@@ -97,33 +126,5 @@ public class WebFluxConfig {
     @Bean
     Jackson2JsonDecoder jackson2JsonDecoder(ObjectMapper objectMapper) {
         return new Jackson2JsonDecoder(objectMapper);
-    }
-
-    @Bean
-    WebFluxConfigurer webFluxConfigurer(
-            Jackson2JsonDecoder jackson2JsonDecoder, Jackson2JsonEncoder jackson2JsonEncoder) {
-        return new WebFluxConfigurer() {
-            @Override
-            public void configureHttpMessageCodecs(ServerCodecConfigurer configurer) {
-                configurer.defaultCodecs().enableLoggingRequestDetails(true);
-                configurer.defaultCodecs().jackson2JsonDecoder(jackson2JsonDecoder);
-                configurer.defaultCodecs().jackson2JsonEncoder(jackson2JsonEncoder);
-            }
-        };
-    }
-
-    @Bean
-    public OpenAPI wastelessOpenAPI() {
-        return new OpenAPI()
-                .components(
-                        new Components()
-                                .addSecuritySchemes(
-                                        "bearerAuth",
-                                        new SecurityScheme()
-                                                .type(SecurityScheme.Type.HTTP)
-                                                .scheme("bearer")
-                                                .in(HEADER)
-                                                .bearerFormat("JWT")))
-                .security(ImmutableList.of(new SecurityRequirement().addList("bearerAuth")));
     }
 }

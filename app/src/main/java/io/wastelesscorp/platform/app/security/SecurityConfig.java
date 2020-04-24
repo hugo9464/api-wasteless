@@ -12,12 +12,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
+import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
+import org.springframework.security.web.server.savedrequest.NoOpServerRequestCache;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 
 @Configuration
@@ -40,7 +43,11 @@ public class SecurityConfig {
             ReactiveUserDetailsService userDetailService,
             JwtTokenService jwtTokenService) {
         // TODO can be simplified I think
-        return http.authorizeExchange()
+
+        return http.securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
+                .requestCache()
+                .disable()
+                .authorizeExchange()
                 .pathMatchers(
                         "/api/auth/1/signup",
                         "/swagger/**",
