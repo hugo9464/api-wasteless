@@ -13,7 +13,7 @@ import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWaste;
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteCreateRequest;
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteOverview;
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteService;
-import io.wastelesscorp.platform.support.ObjectMapperConfig;
+import io.wastelesscorp.platform.support.WebFluxConfig;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -31,7 +31,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.publisher.PublisherProbe;
 
 @WebFluxTest
-@Import({WeightedWasteController.class, ObjectMapperConfig.class})
+@Import({WeightedWasteController.class, WebFluxConfig.class})
 @WithMockUser(
         username = "user_id",
         roles = {"standard_user"})

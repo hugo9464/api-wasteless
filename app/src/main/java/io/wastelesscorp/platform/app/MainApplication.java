@@ -4,19 +4,15 @@ import io.wastelesscorp.platform.app.controller.ControllerConfig;
 import io.wastelesscorp.platform.app.security.SecurityConfig;
 import io.wastelesscorp.platform.atoms.user.logic.UserServiceConfig;
 import io.wastelesscorp.platform.atoms.weightedwaste.logic.WeightedWasteServiceConfig;
-import io.wastelesscorp.platform.support.ObjectMapperConfig;
+import io.wastelesscorp.platform.support.WebFluxConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
-import org.springframework.web.reactive.config.EnableWebFlux;
 
 @SpringBootApplication
-@EnableWebFluxSecurity
-@EnableWebFlux
 @Import({
     ControllerConfig.class,
-    ObjectMapperConfig.class,
+    WebFluxConfig.class,
     SecurityConfig.class,
     UserServiceConfig.class,
     WeightedWasteServiceConfig.class

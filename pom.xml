@@ -23,14 +23,19 @@
 		<jjwt.version>0.9.0</jjwt.version>
 		<mongodb-driver-reactivestreams.version>1.13.1</mongodb-driver-reactivestreams.version>
 		<mongojack.version>2.10.1</mongojack.version>
-		<springdoc-openapi-webflux-ui.version>1.3.2</springdoc-openapi-webflux-ui.version>
+		<springdoc-openapi.version>1.3.2</springdoc-openapi.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>org.springdoc</groupId>
 				<artifactId>springdoc-openapi-webflux-ui</artifactId>
-				<version>${springdoc-openapi-webflux-ui.version}</version>
+				<version>${springdoc-openapi.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springdoc</groupId>
+				<artifactId>springdoc-openapi-security</artifactId>
+				<version>${springdoc-openapi.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.undercouch</groupId>

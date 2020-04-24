@@ -6,6 +6,7 @@ import static org.springframework.http.HttpStatus.NO_CONTENT;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWaste;
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteCreateRequest;
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteOverview;
@@ -15,6 +16,7 @@ import java.security.Principal;
 import java.time.Clock;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Tag(name = "Weighted Waste", description = "Handles weighted waste related ressources.")
 @RestController
 @RequestMapping("/api/app/weightedwaste/1/")
 public class WeightedWasteController {
@@ -37,7 +40,8 @@ public class WeightedWasteController {
     }
 
     @GetMapping
-    public Flux<WeightedWaste> getWeightedWastes(Mono<Principal> principal) {
+    public Flux<WeightedWaste> getWeightedWastes(
+            @AuthenticationPrincipal Mono<Principal> principal) {
         return principal
                 .map(Principal::getName)
                 .map(ImmutableSet::of)
@@ -50,7 +54,8 @@ public class WeightedWasteController {
     @PostMapping
     @ResponseStatus(NO_CONTENT)
     public Mono<Void> addWeightedWaste(
-            Mono<Principal> principal, @RequestBody WeightedWasteCreateJsonRequest request) {
+            @AuthenticationPrincipal Mono<Principal> principal,
+            @RequestBody WeightedWasteCreateJsonRequest request) {
         return principal
                 .map(Principal::getName)
                 .flatMap(
@@ -61,7 +66,8 @@ public class WeightedWasteController {
     }
 
     @GetMapping("/overview")
-    public Mono<WeightedWasteOverview> getOverview(Mono<Principal> principal) {
+    public Mono<WeightedWasteOverview> getOverview(
+            @AuthenticationPrincipal Mono<Principal> principal) {
         return principal
                 .map(Principal::getName)
                 .map(ImmutableSet::of)

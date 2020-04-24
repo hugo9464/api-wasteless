@@ -15,6 +15,10 @@
 			<artifactId>springdoc-openapi-webflux-ui</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-security</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.mongojack</groupId>
 			<artifactId>mongojack</artifactId>
 		</dependency>

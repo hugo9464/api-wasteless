@@ -77,7 +77,10 @@ TBD
 Once the Wasteless Backend is up and running, you can access the Swagger UI through this URL:
 `http://localhost:8080/swagger-ui.html`
 
-Be aware than swagger is not security-friendly yet.
+Once you have created an account (See `Authentication` Swagger definition), retrieve the token
+from the log in Authorization response header.
+You can use this token in the authorize form (right-top button) without the bearer suffix to make
+all the next requests authenticated.
 
 [Immutables Instructions]: https://immutables.github.io/apt.html
 [Immutables]: https://help.github.com/en/articles/connecting-to-github-with-ssh
