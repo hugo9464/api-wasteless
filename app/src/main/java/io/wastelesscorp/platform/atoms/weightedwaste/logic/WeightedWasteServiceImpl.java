@@ -21,49 +21,46 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class WeightedWasteServiceImpl implements WeightedWasteService {
-    public final WeightedWasteRepository repository;
+  public final WeightedWasteRepository repository;
 
-    public WeightedWasteServiceImpl(WeightedWasteRepository repository) {
-        this.repository = repository;
-    }
+  public WeightedWasteServiceImpl(WeightedWasteRepository repository) {
+    this.repository = repository;
+  }
 
-    @Override
-    public Mono<Void> addWeightedWaste(String userId, WeightedWasteCreateRequest request) {
-        return Mono.fromSupplier(
-                        () -> WeightedWasteCreateRequestInterface.toWeightedWaste(userId, request))
-                .flatMap(repository::insert);
-    }
+  @Override
+  public Mono<Void> addWeightedWaste(String userId, WeightedWasteCreateRequest request) {
+    return Mono.fromSupplier(
+            () -> WeightedWasteCreateRequestInterface.toWeightedWaste(userId, request))
+        .flatMap(repository::insert);
+  }
 
-    @Override
-    public Mono<WeightedWasteOverview> getWeightedWasteOverview(
-            ImmutableSet<String> userId,
-            String challengeId,
-            Range<Instant> period,
-            ChronoUnit aggregationUnit) {
-        return repository
-                .findAll(challengeId, userId, period)
-                .collect(toImmutableSet())
-                .map(weightedWastes -> toFrequencies(weightedWastes, aggregationUnit))
-                .map(
-                        frequencies ->
-                                WeightedWasteOverviewInterface.of(
-                                        frequencies, period, aggregationUnit));
-    }
+  @Override
+  public Mono<WeightedWasteOverview> getWeightedWasteOverview(
+      ImmutableSet<String> userId,
+      String challengeId,
+      Range<Instant> period,
+      ChronoUnit aggregationUnit) {
+    return repository
+        .findAll(challengeId, userId, period)
+        .collect(toImmutableSet())
+        .map(weightedWastes -> toFrequencies(weightedWastes, aggregationUnit))
+        .map(
+            frequencies -> WeightedWasteOverviewInterface.of(frequencies, period, aggregationUnit));
+  }
 
-    @Override
-    public Flux<WeightedWaste> getWeightedWastes(String challengeId, ImmutableSet<String> userIds) {
-        return repository.findWeightedWastes(challengeId, userIds);
-    }
+  @Override
+  public Flux<WeightedWaste> getWeightedWastes(String challengeId, ImmutableSet<String> userIds) {
+    return repository.findWeightedWastes(challengeId, userIds);
+  }
 
-    private static ImmutableTable<Type, Instant, Integer> toFrequencies(
-            ImmutableSet<WeightedWaste> weightedWastes, ChronoUnit aggregationUnit) {
-        return weightedWastes.stream()
-                .collect(
-                        toImmutableTable(
-                                WeightedWaste::getType,
-                                weightedWaste ->
-                                        weightedWaste.getCreatedAt().truncatedTo(aggregationUnit),
-                                WeightedWasteInterface::getWeight,
-                                Integer::sum));
-    }
+  private static ImmutableTable<Type, Instant, Integer> toFrequencies(
+      ImmutableSet<WeightedWaste> weightedWastes, ChronoUnit aggregationUnit) {
+    return weightedWastes.stream()
+        .collect(
+            toImmutableTable(
+                WeightedWaste::getType,
+                weightedWaste -> weightedWaste.getCreatedAt().truncatedTo(aggregationUnit),
+                WeightedWasteInterface::getWeight,
+                Integer::sum));
+  }
 }

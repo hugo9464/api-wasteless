@@ -14,22 +14,22 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping("/api/auth/1/")
 public class AuthenticationController {
-    private final PasswordEncoder passwordEncoder;
-    private final UserService userService;
+  private final PasswordEncoder passwordEncoder;
+  private final UserService userService;
 
-    public AuthenticationController(PasswordEncoder passwordEncoder, UserService userService) {
-        this.passwordEncoder = passwordEncoder;
-        this.userService = userService;
-    }
+  public AuthenticationController(PasswordEncoder passwordEncoder, UserService userService) {
+    this.passwordEncoder = passwordEncoder;
+    this.userService = userService;
+  }
 
-    @PostMapping(value = "/signup")
-    public Mono<Void> signup(@RequestBody SignupRequestJson request) {
-        return Mono.fromSupplier(() -> request.toCreateUserRequest(passwordEncoder))
-                .flatMap(userService::create);
-    }
+  @PostMapping(value = "/signup")
+  public Mono<Void> signup(@RequestBody SignupRequestJson request) {
+    return Mono.fromSupplier(() -> request.toCreateUserRequest(passwordEncoder))
+        .flatMap(userService::create);
+  }
 
-    @GetMapping(value = "/login")
-    public Mono<String> dumbEndpoint() {
-        return Mono.empty();
-    }
+  @GetMapping(value = "/login")
+  public Mono<String> dumbEndpoint() {
+    return Mono.empty();
+  }
 }

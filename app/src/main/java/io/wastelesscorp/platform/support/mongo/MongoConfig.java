@@ -26,49 +26,48 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
-import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
 
 @Configuration
 @Import(DefaultCollectionFactory.class)
 public class MongoConfig {
-    @Bean
-    public MongoClient mongoClient(@Value("${mongodb.url}") String mongoUrl) {
-        return MongoClients.create(mongoUrl);
-    }
+  @Bean
+  public MongoClient mongoClient(@Value("${mongodb.url}") String mongoUrl) {
+    return MongoClients.create(mongoUrl);
+  }
 
-    @Primary
-    @Profile("test")
-    @Bean
-    CollectionFactory testCollectionFactory(DefaultCollectionFactory defaultFactory) {
-        return new TestCollectionFactory(defaultFactory, clock());
-    }
+  @Primary
+  @Profile("test")
+  @Bean
+  CollectionFactory testCollectionFactory(DefaultCollectionFactory defaultFactory) {
+    return new TestCollectionFactory(defaultFactory, clock());
+  }
 
-    @Bean
-    public MongoDatabase mongoDatabase(
-            MongoClient mongoClient, @Value("${mongodb.database}") String databaseName) {
-        return mongoClient.getDatabase(databaseName);
-    }
+  @Bean
+  public MongoDatabase mongoDatabase(
+      MongoClient mongoClient, @Value("${mongodb.database}") String databaseName) {
+    return mongoClient.getDatabase(databaseName);
+  }
 
-    @Bean
-    @Qualifier("codecRegistryObjectMapper")
-    ObjectMapper codecRegistryObjectMapper() {
-        // TODO Find a way to handle mongo object id in a hided way
-        return new ObjectMapper()
-                .setSerializationInclusion(NON_NULL)
-                .setVisibility(ALL, NONE)
-                .setVisibility(CREATOR, ANY)
-                .setVisibility(FIELD, ANY)
-                .configure(WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
-                .configure(READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
-                .configure(FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .registerModule(new GuavaModule())
-                .registerModule(new JavaTimeModule())
-                .registerModule(new Jdk8Module())
-                .registerModule(new ParameterNamesModule());
-    }
+  @Bean
+  @Qualifier("codecRegistryObjectMapper")
+  ObjectMapper codecRegistryObjectMapper() {
+    // TODO Find a way to handle mongo object id in a hided way
+    return new ObjectMapper()
+        .setSerializationInclusion(NON_NULL)
+        .setVisibility(ALL, NONE)
+        .setVisibility(CREATOR, ANY)
+        .setVisibility(FIELD, ANY)
+        .configure(WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
+        .configure(READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
+        .configure(FAIL_ON_UNKNOWN_PROPERTIES, false)
+        .registerModule(new GuavaModule())
+        .registerModule(new JavaTimeModule())
+        .registerModule(new Jdk8Module())
+        .registerModule(new ParameterNamesModule());
+  }
 
-    @Bean
-    public Clock clock() {
-        return Clock.systemDefaultZone();
-    }
+  @Bean
+  public Clock clock() {
+    return Clock.systemDefaultZone();
+  }
 }

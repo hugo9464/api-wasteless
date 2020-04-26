@@ -8,13 +8,13 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface WeightedWasteService {
-    Mono<Void> addWeightedWaste(String userId, WeightedWasteCreateRequest request);
+  Mono<Void> addWeightedWaste(String userId, WeightedWasteCreateRequest request);
 
-    Mono<WeightedWasteOverview> getWeightedWasteOverview(
-            ImmutableSet<String> userId,
-            String challengeId,
-            Range<Instant> period,
-            ChronoUnit aggregationUnit);
+  Mono<WeightedWasteOverview> getWeightedWasteOverview(
+      ImmutableSet<String> userId,
+      String challengeId,
+      Range<Instant> period,
+      ChronoUnit aggregationUnit);
 
-    Flux<WeightedWaste> getWeightedWastes(String challengeId, ImmutableSet<String> userIds);
+  Flux<WeightedWaste> getWeightedWastes(String challengeId, ImmutableSet<String> userIds);
 }

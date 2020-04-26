@@ -17,41 +17,35 @@ import reactor.test.StepVerifier;
 
 @SpringBootTest(classes = UserServiceConfig.class)
 class UserServiceImplTest {
-    private static final CreateUserRequest CREATE_REQUEST =
-            CreateUserRequest.of(
-                    "email", "password", "firstname", "lastname", ImmutableSet.of(STANDARD_USER));
-    private static final User EXPECTED_USER =
-            User.of(
-                    "id",
-                    "email",
-                    "password",
-                    "firstname",
-                    "lastname",
-                    ImmutableSet.of(STANDARD_USER));
+  private static final CreateUserRequest CREATE_REQUEST =
+      CreateUserRequest.of(
+          "email", "password", "firstname", "lastname", ImmutableSet.of(STANDARD_USER));
+  private static final User EXPECTED_USER =
+      User.of("id", "email", "password", "firstname", "lastname", ImmutableSet.of(STANDARD_USER));
 
-    @Autowired UserService service;
-    @Autowired MongoCollection<User> collection;
+  @Autowired UserService service;
+  @Autowired MongoCollection<User> collection;
 
-    @BeforeEach
-    public void setUp() {
-        Mono.from(collection.drop()).block();
-    }
+  @BeforeEach
+  public void setUp() {
+    Mono.from(collection.drop()).block();
+  }
 
-    @Test
-    void createAndFind() {
-        StepVerifier.create(service.create(CREATE_REQUEST).then(service.findByEmail("email")))
-                .expectNextMatches(actual -> IgnoreIdCompare(actual, EXPECTED_USER))
-                .verifyComplete();
-    }
+  @Test
+  void createAndFind() {
+    StepVerifier.create(service.create(CREATE_REQUEST).then(service.findByEmail("email")))
+        .expectNextMatches(actual -> IgnoreIdCompare(actual, EXPECTED_USER))
+        .verifyComplete();
+  }
 
-    @Test
-    @Disabled("Needs to implement the feature. Use mongo unique index on email.")
-    void duplicatedCreation() {
-        StepVerifier.create(service.create(CREATE_REQUEST).then(service.create(CREATE_REQUEST)))
-                .verifyError();
-    }
+  @Test
+  @Disabled("Needs to implement the feature. Use mongo unique index on email.")
+  void duplicatedCreation() {
+    StepVerifier.create(service.create(CREATE_REQUEST).then(service.create(CREATE_REQUEST)))
+        .verifyError();
+  }
 
-    private boolean IgnoreIdCompare(User actual, User expected) {
-        return actual.withId(expected.getId()).equals(expected);
-    }
+  private boolean IgnoreIdCompare(User actual, User expected) {
+    return actual.withId(expected.getId()).equals(expected);
+  }
 }

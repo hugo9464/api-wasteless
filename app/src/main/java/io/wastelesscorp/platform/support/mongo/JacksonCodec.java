@@ -7,26 +7,26 @@ import org.bson.codecs.DecoderContext;
 import org.bson.codecs.EncoderContext;
 
 final class JacksonCodec<T> implements Codec<T> {
-    private final JacksonEncoder<T> encoder;
-    private final JacksonDecoder<T> decoder;
+  private final JacksonEncoder<T> encoder;
+  private final JacksonDecoder<T> decoder;
 
-    JacksonCodec(JacksonEncoder<T> encoder, JacksonDecoder<T> decoder) {
-        this.encoder = encoder;
-        this.decoder = decoder;
-    }
+  JacksonCodec(JacksonEncoder<T> encoder, JacksonDecoder<T> decoder) {
+    this.encoder = encoder;
+    this.decoder = decoder;
+  }
 
-    @Override
-    public void encode(BsonWriter writer, T value, EncoderContext encoderContext) {
-        this.encoder.encode(writer, value, encoderContext);
-    }
+  @Override
+  public void encode(BsonWriter writer, T value, EncoderContext encoderContext) {
+    this.encoder.encode(writer, value, encoderContext);
+  }
 
-    @Override
-    public Class<T> getEncoderClass() {
-        return encoder.getEncoderClass();
-    }
+  @Override
+  public Class<T> getEncoderClass() {
+    return encoder.getEncoderClass();
+  }
 
-    @Override
-    public T decode(BsonReader reader, DecoderContext decoderContext) {
-        return decoder.decode(reader, decoderContext);
-    }
+  @Override
+  public T decode(BsonReader reader, DecoderContext decoderContext) {
+    return decoder.decode(reader, decoderContext);
+  }
 }

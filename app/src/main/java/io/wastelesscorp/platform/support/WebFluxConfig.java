@@ -39,92 +39,89 @@ import org.springframework.web.reactive.config.WebFluxConfigurer;
 @EnableWebFlux
 public class WebFluxConfig {
 
-    @Bean
-    WebFluxConfigurer webFluxConfigurer(
-            Jackson2JsonDecoder jackson2JsonDecoder, Jackson2JsonEncoder jackson2JsonEncoder) {
-        return new WebFluxConfigurer() {
-            @Override
-            public void configureHttpMessageCodecs(ServerCodecConfigurer configurer) {
-                configurer.defaultCodecs().jackson2JsonDecoder(jackson2JsonDecoder);
-                configurer.defaultCodecs().jackson2JsonEncoder(jackson2JsonEncoder);
-            }
-        };
+  @Bean
+  WebFluxConfigurer webFluxConfigurer(
+      Jackson2JsonDecoder jackson2JsonDecoder, Jackson2JsonEncoder jackson2JsonEncoder) {
+    return new WebFluxConfigurer() {
+      @Override
+      public void configureHttpMessageCodecs(ServerCodecConfigurer configurer) {
+        configurer.defaultCodecs().jackson2JsonDecoder(jackson2JsonDecoder);
+        configurer.defaultCodecs().jackson2JsonEncoder(jackson2JsonEncoder);
+      }
+    };
+  }
+
+  @Bean
+  public OpenAPI wastelessOpenAPI() {
+    return new OpenAPI()
+        .components(
+            new Components()
+                .addSecuritySchemes(
+                    "bearerAuth",
+                    new SecurityScheme()
+                        .type(HTTP)
+                        .scheme("bearer")
+                        .in(HEADER)
+                        .bearerFormat("JWT")))
+        .security(ImmutableList.of(new SecurityRequirement().addList("bearerAuth")));
+  }
+
+  @Bean
+  public ObjectMapper objectMapper() {
+    ObjectMapper mapper = new ObjectMapper();
+    SimpleModule simpleModule = new SimpleModule();
+    simpleModule.addDeserializer(ImmutableTable.class, new TableDeserializer());
+    simpleModule.addSerializer(new TableSerializer());
+    return mapper
+        .registerModule(new GuavaModule())
+        .registerModule(new Jdk8Module())
+        .registerModule(new JavaTimeModule())
+        .registerModule(simpleModule)
+        .setVisibility(ALL, NONE)
+        .setVisibility(CREATOR, ANY)
+        .setVisibility(FIELD, ANY)
+        .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+  }
+
+  public static class TableSerializer extends JsonSerializer<ImmutableTable> {
+    @Override
+    public void serialize(
+        final ImmutableTable value, final JsonGenerator jgen, final SerializerProvider provider)
+        throws IOException {
+      jgen.writeObject(value.rowMap());
     }
 
-    @Bean
-    public OpenAPI wastelessOpenAPI() {
-        return new OpenAPI()
-                .components(
-                        new Components()
-                                .addSecuritySchemes(
-                                        "bearerAuth",
-                                        new SecurityScheme()
-                                                .type(HTTP)
-                                                .scheme("bearer")
-                                                .in(HEADER)
-                                                .bearerFormat("JWT")))
-                .security(ImmutableList.of(new SecurityRequirement().addList("bearerAuth")));
+    @Override
+    public Class<ImmutableTable> handledType() {
+      return ImmutableTable.class;
     }
+  }
 
-    @Bean
-    public ObjectMapper objectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        SimpleModule simpleModule = new SimpleModule();
-        simpleModule.addDeserializer(ImmutableTable.class, new TableDeserializer());
-        simpleModule.addSerializer(new TableSerializer());
-        return mapper.registerModule(new GuavaModule())
-                .registerModule(new Jdk8Module())
-                .registerModule(new JavaTimeModule())
-                .registerModule(simpleModule)
-                .setVisibility(ALL, NONE)
-                .setVisibility(CREATOR, ANY)
-                .setVisibility(FIELD, ANY)
-                .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
-    }
-
-    public static class TableSerializer extends JsonSerializer<ImmutableTable> {
-        @Override
-        public void serialize(
-                final ImmutableTable value,
-                final JsonGenerator jgen,
-                final SerializerProvider provider)
-                throws IOException {
-            jgen.writeObject(value.rowMap());
+  public static class TableDeserializer extends JsonDeserializer<ImmutableTable<?, ?, ?>> {
+    @Override
+    public ImmutableTable<?, ?, ?> deserialize(
+        final JsonParser jp, final DeserializationContext ctxt) throws IOException {
+      final ImmutableTable.Builder<Object, Object, Object> tableBuilder = ImmutableTable.builder();
+      final Map<?, Map<?, ?>> rowMap = jp.readValueAs(new TypeReference<Map<?, Map<?, ?>>>() {});
+      for (final Map.Entry<?, Map<?, ?>> rowEntry : rowMap.entrySet()) {
+        final Object rowKey = rowEntry.getKey();
+        for (final Map.Entry<?, ?> cellEntry : rowEntry.getValue().entrySet()) {
+          final Object colKey = cellEntry.getKey();
+          final Object val = cellEntry.getValue();
+          tableBuilder.put(rowKey, colKey, val);
         }
-
-        @Override
-        public Class<ImmutableTable> handledType() {
-            return ImmutableTable.class;
-        }
+      }
+      return tableBuilder.build();
     }
+  }
 
-    public static class TableDeserializer extends JsonDeserializer<ImmutableTable<?, ?, ?>> {
-        @Override
-        public ImmutableTable<?, ?, ?> deserialize(
-                final JsonParser jp, final DeserializationContext ctxt) throws IOException {
-            final ImmutableTable.Builder<Object, Object, Object> tableBuilder =
-                    ImmutableTable.builder();
-            final Map<?, Map<?, ?>> rowMap =
-                    jp.readValueAs(new TypeReference<Map<?, Map<?, ?>>>() {});
-            for (final Map.Entry<?, Map<?, ?>> rowEntry : rowMap.entrySet()) {
-                final Object rowKey = rowEntry.getKey();
-                for (final Map.Entry<?, ?> cellEntry : rowEntry.getValue().entrySet()) {
-                    final Object colKey = cellEntry.getKey();
-                    final Object val = cellEntry.getValue();
-                    tableBuilder.put(rowKey, colKey, val);
-                }
-            }
-            return tableBuilder.build();
-        }
-    }
+  @Bean
+  Jackson2JsonEncoder jackson2JsonEncoder(ObjectMapper objectMapper) {
+    return new Jackson2JsonEncoder(objectMapper);
+  }
 
-    @Bean
-    Jackson2JsonEncoder jackson2JsonEncoder(ObjectMapper objectMapper) {
-        return new Jackson2JsonEncoder(objectMapper);
-    }
-
-    @Bean
-    Jackson2JsonDecoder jackson2JsonDecoder(ObjectMapper objectMapper) {
-        return new Jackson2JsonDecoder(objectMapper);
-    }
+  @Bean
+  Jackson2JsonDecoder jackson2JsonDecoder(ObjectMapper objectMapper) {
+    return new Jackson2JsonDecoder(objectMapper);
+  }
 }

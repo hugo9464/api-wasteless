@@ -32,41 +32,39 @@ import reactor.core.publisher.Mono;
  * as a bearer token
  */
 public class BasicAuthenticationSuccessHandler implements ServerAuthenticationSuccessHandler {
-    private final JwtTokenService jwtTokenService;
+  private final JwtTokenService jwtTokenService;
 
-    public BasicAuthenticationSuccessHandler(JwtTokenService jwtTokenService) {
-        this.jwtTokenService = jwtTokenService;
-    }
+  public BasicAuthenticationSuccessHandler(JwtTokenService jwtTokenService) {
+    this.jwtTokenService = jwtTokenService;
+  }
 
-    /**
-     * A successful authentication object us used to create a JWT object and added in the
-     * authorization header of the current WebExchange
-     *
-     * @param webFilterExchange
-     * @param authentication
-     * @return
-     */
-    @Override
-    public Mono<Void> onAuthenticationSuccess(
-            WebFilterExchange webFilterExchange, Authentication authentication) {
-        webFilterExchange
-                .getExchange()
-                .getResponse()
-                .getHeaders()
-                .add(HttpHeaders.AUTHORIZATION, getHttpAuthHeaderValue(authentication));
+  /**
+   * A successful authentication object us used to create a JWT object and added in the
+   * authorization header of the current WebExchange
+   *
+   * @param webFilterExchange
+   * @param authentication
+   * @return
+   */
+  @Override
+  public Mono<Void> onAuthenticationSuccess(
+      WebFilterExchange webFilterExchange, Authentication authentication) {
+    webFilterExchange
+        .getExchange()
+        .getResponse()
+        .getHeaders()
+        .add(HttpHeaders.AUTHORIZATION, getHttpAuthHeaderValue(authentication));
 
-        webFilterExchange.getExchange().getResponse().setStatusCode(HttpStatus.OK);
-        return webFilterExchange.getChain().filter(webFilterExchange.getExchange());
-    }
+    webFilterExchange.getExchange().getResponse().setStatusCode(HttpStatus.OK);
+    return webFilterExchange.getChain().filter(webFilterExchange.getExchange());
+  }
 
-    private String getHttpAuthHeaderValue(Authentication authentication) {
-        return String.join(" ", "Bearer", tokenFromAuthentication(authentication));
-    }
+  private String getHttpAuthHeaderValue(Authentication authentication) {
+    return String.join(" ", "Bearer", tokenFromAuthentication(authentication));
+  }
 
-    private String tokenFromAuthentication(Authentication authentication) {
-        return jwtTokenService.generateToken(
-                authentication.getName(),
-                authentication.getCredentials(),
-                authentication.getAuthorities());
-    }
+  private String tokenFromAuthentication(Authentication authentication) {
+    return jwtTokenService.generateToken(
+        authentication.getName(), authentication.getCredentials(), authentication.getAuthorities());
+  }
 }

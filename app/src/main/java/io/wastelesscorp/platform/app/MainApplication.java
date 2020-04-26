@@ -11,14 +11,14 @@ import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
 @Import({
-    ControllerConfig.class,
-    WebFluxConfig.class,
-    SecurityConfig.class,
-    UserServiceConfig.class,
-    WeightedWasteServiceConfig.class
+  ControllerConfig.class,
+  WebFluxConfig.class,
+  SecurityConfig.class,
+  UserServiceConfig.class,
+  WeightedWasteServiceConfig.class
 })
 public class MainApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(MainApplication.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(MainApplication.class, args);
+  }
 }

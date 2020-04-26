@@ -8,12 +8,12 @@ import java.lang.annotation.Target;
 import org.immutables.value.Value;
 
 @Value.Style(
-        allParameters = true,
-        typeAbstract = {"*Interface"},
-        strictBuilder = true,
-        typeImmutable = "*",
-        jdkOnly = true,
-        privateNoargConstructor = true)
+    allParameters = true,
+    typeAbstract = {"*Interface"},
+    strictBuilder = true,
+    typeImmutable = "*",
+    jdkOnly = true,
+    privateNoargConstructor = true)
 @JsonSerialize
 @Retention(RetentionPolicy.CLASS)
 @Target({ElementType.PACKAGE, ElementType.TYPE})

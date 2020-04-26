@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Import;
 
 @Import({UserServiceImpl.class, UserRepository.class, MongoConfig.class})
 public class UserServiceConfig {
-    @Bean
-    MongoCollection<User> userCollection(CollectionFactory collectionFactory) {
-        return collectionFactory.get("users", User.class);
-    }
+  @Bean
+  MongoCollection<User> userCollection(CollectionFactory collectionFactory) {
+    return collectionFactory.get("users", User.class);
+  }
 }

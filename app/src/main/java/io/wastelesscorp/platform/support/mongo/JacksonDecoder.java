@@ -18,54 +18,50 @@ import org.mongojack.internal.stream.DBDecoderBsonParser;
 import org.mongojack.internal.stream.JacksonDBObject;
 
 final class JacksonDecoder<T> implements Decoder<T> {
-    private final TypeReference<?> typeReference;
-    private final ObjectMapper objectMapper;
+  private final TypeReference<?> typeReference;
+  private final ObjectMapper objectMapper;
 
-    JacksonDecoder(Class<T> clazz, ObjectMapper objectMapper) {
-        this(new TypeReference<>() {
-                    @Override
-                    public Type getType() {
-                        return clazz;
-                    }
-                },
-                objectMapper);
-    }
+  JacksonDecoder(Class<T> clazz, ObjectMapper objectMapper) {
+    this(
+        new TypeReference<>() {
+          @Override
+          public Type getType() {
+            return clazz;
+          }
+        },
+        objectMapper);
+  }
 
-    JacksonDecoder(TypeReference<?> typeReference, ObjectMapper objectMapper) {
-        this.typeReference = typeReference;
-        this.objectMapper = objectMapper;
-    }
+  JacksonDecoder(TypeReference<?> typeReference, ObjectMapper objectMapper) {
+    this.typeReference = typeReference;
+    this.objectMapper = objectMapper;
+  }
 
-    private T decode(byte[] b) {
-        try {
-            return decode(new ByteArrayInputStream(b));
-        } catch (IOException e) {
-            // Not possible
-            throw new UncheckedIOException(
-                    "IOException encountered while reading from a byte array input stream", e);
-        }
+  private T decode(byte[] b) {
+    try {
+      return decode(new ByteArrayInputStream(b));
+    } catch (IOException e) {
+      // Not possible
+      throw new UncheckedIOException(
+          "IOException encountered while reading from a byte array input stream", e);
     }
+  }
 
-    private T decode(InputStream in) throws IOException {
-        JacksonDBObject<T> decoded = new JacksonDBObject<T>();
-        try (DBDecoderBsonParser parser =
-                     new DBDecoderBsonParser(
-                             new IOContext(new BufferRecycler(), in, false),
-                             0,
-                             in,
-                             decoded,
-                             null,
-                             objectMapper)) {
-            return objectMapper.reader().forType(typeReference).readValue(parser);
-        }
+  private T decode(InputStream in) throws IOException {
+    JacksonDBObject<T> decoded = new JacksonDBObject<T>();
+    try (DBDecoderBsonParser parser =
+        new DBDecoderBsonParser(
+            new IOContext(new BufferRecycler(), in, false), 0, in, decoded, null, objectMapper)) {
+      return objectMapper.reader().forType(typeReference).readValue(parser);
     }
+  }
 
-    @Override
-    public T decode(BsonReader reader, DecoderContext decoderContext) {
-        try (BasicOutputBuffer bob = new BasicOutputBuffer();
-             BsonBinaryWriter binaryWriter = new BsonBinaryWriter(bob)) {
-            binaryWriter.pipe(reader);
-            return decode(bob.getInternalBuffer());
-        }
+  @Override
+  public T decode(BsonReader reader, DecoderContext decoderContext) {
+    try (BasicOutputBuffer bob = new BasicOutputBuffer();
+        BsonBinaryWriter binaryWriter = new BsonBinaryWriter(bob)) {
+      binaryWriter.pipe(reader);
+      return decode(bob.getInternalBuffer());
     }
+  }
 }

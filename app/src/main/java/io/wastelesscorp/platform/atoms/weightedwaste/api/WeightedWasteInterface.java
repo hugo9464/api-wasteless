@@ -5,18 +5,18 @@ import org.immutables.value.Value;
 
 @Value.Immutable
 public interface WeightedWasteInterface {
-    String getChallengeId();
+  String getChallengeId();
 
-    String getUserId();
+  String getUserId();
 
-    Type getType();
+  Type getType();
 
-    Integer getWeight();
+  Integer getWeight();
 
-    Instant getCreatedAt();
+  Instant getCreatedAt();
 
-    enum Type {
-        GREEN,
-        BLUE;
-    }
+  enum Type {
+    GREEN,
+    BLUE;
+  }
 }

@@ -6,20 +6,20 @@ import org.immutables.value.Value;
 
 @Value.Immutable
 public interface WeightedWasteCreateRequestInterface {
-    String getChallengeId();
+  String getChallengeId();
 
-    Type getType();
+  Type getType();
 
-    Integer getWeight();
+  Integer getWeight();
 
-    Instant getCreatedAt();
+  Instant getCreatedAt();
 
-    static WeightedWaste toWeightedWaste(String userId, WeightedWasteCreateRequest request) {
-        return WeightedWaste.of(
-                request.getChallengeId(),
-                userId,
-                request.getType(),
-                request.getWeight(),
-                request.getCreatedAt());
-    }
+  static WeightedWaste toWeightedWaste(String userId, WeightedWasteCreateRequest request) {
+    return WeightedWaste.of(
+        request.getChallengeId(),
+        userId,
+        request.getType(),
+        request.getWeight(),
+        request.getCreatedAt());
+  }
 }

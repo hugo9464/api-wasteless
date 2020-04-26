@@ -7,19 +7,19 @@ import io.wastelesscorp.platform.atoms.user.logic.repository.UserRepository;
 import reactor.core.publisher.Mono;
 
 public class UserServiceImpl implements UserService {
-    private final UserRepository userRepository;
+  private final UserRepository userRepository;
 
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+  public UserServiceImpl(UserRepository userRepository) {
+    this.userRepository = userRepository;
+  }
 
-    @Override
-    public Mono<Void> create(CreateUserRequest request) {
-        return Mono.fromSupplier(request::toUser).flatMap(userRepository::insert);
-    }
+  @Override
+  public Mono<Void> create(CreateUserRequest request) {
+    return Mono.fromSupplier(request::toUser).flatMap(userRepository::insert);
+  }
 
-    @Override
-    public Mono<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
+  @Override
+  public Mono<User> findByEmail(String email) {
+    return userRepository.findByEmail(email);
+  }
 }

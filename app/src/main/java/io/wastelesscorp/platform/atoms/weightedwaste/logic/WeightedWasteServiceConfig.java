@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Import;
 
 @Import({MongoConfig.class, WeightedWasteRepository.class, WeightedWasteServiceImpl.class})
 public class WeightedWasteServiceConfig {
-    @Bean
-    MongoCollection<WeightedWaste> weightedWasteCollection(CollectionFactory collectionFactory) {
-        return collectionFactory.get("weighted_wastes", WeightedWaste.class);
-    }
+  @Bean
+  MongoCollection<WeightedWaste> weightedWasteCollection(CollectionFactory collectionFactory) {
+    return collectionFactory.get("weighted_wastes", WeightedWaste.class);
+  }
 }

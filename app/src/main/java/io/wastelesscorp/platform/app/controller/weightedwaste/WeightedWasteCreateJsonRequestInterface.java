@@ -7,11 +7,11 @@ import org.immutables.value.Value;
 
 @Value.Immutable
 public interface WeightedWasteCreateJsonRequestInterface {
-    WeightedWasteInterface.Type getType();
+  WeightedWasteInterface.Type getType();
 
-    Integer getWeight();
+  Integer getWeight();
 
-    default WeightedWasteCreateRequest toDto(String challengeId, Instant now) {
-        return WeightedWasteCreateRequest.of(challengeId, getType(), getWeight(), now);
-    }
+  default WeightedWasteCreateRequest toDto(String challengeId, Instant now) {
+    return WeightedWasteCreateRequest.of(challengeId, getType(), getWeight(), now);
+  }
 }

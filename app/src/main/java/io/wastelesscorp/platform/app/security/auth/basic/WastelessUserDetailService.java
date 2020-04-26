@@ -11,24 +11,24 @@ import org.springframework.security.core.userdetails.UserDetails;
 import reactor.core.publisher.Mono;
 
 public class WastelessUserDetailService implements ReactiveUserDetailsService {
-    private final UserService userService;
+  private final UserService userService;
 
-    public WastelessUserDetailService(UserService userService) {
-        this.userService = userService;
-    }
+  public WastelessUserDetailService(UserService userService) {
+    this.userService = userService;
+  }
 
-    @Override
-    public Mono<UserDetails> findByUsername(String email) {
-        return userService.findByEmail(email).map(WastelessUserDetailService::buildUserDetails);
-    }
+  @Override
+  public Mono<UserDetails> findByUsername(String email) {
+    return userService.findByEmail(email).map(WastelessUserDetailService::buildUserDetails);
+  }
 
-    private static UserDetails buildUserDetails(User user) {
-        return new org.springframework.security.core.userdetails.User(
-                user.getId(),
-                user.getPassword(),
-                user.getRoles().stream()
-                        .map(Role::getName)
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(toImmutableSet()));
-    }
+  private static UserDetails buildUserDetails(User user) {
+    return new org.springframework.security.core.userdetails.User(
+        user.getId(),
+        user.getPassword(),
+        user.getRoles().stream()
+            .map(Role::getName)
+            .map(SimpleGrantedAuthority::new)
+            .collect(toImmutableSet()));
+  }
 }

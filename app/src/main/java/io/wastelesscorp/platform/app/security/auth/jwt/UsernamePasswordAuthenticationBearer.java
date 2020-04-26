@@ -37,25 +37,25 @@ import reactor.core.publisher.Mono;
  */
 public class UsernamePasswordAuthenticationBearer {
 
-    public static Mono<Authentication> create(SignedJWT signedJWT) {
-        return Mono.just(signedJWT)
-                .map(silent(SignedJWT::getJWTClaimsSet))
-                .zipWhen(
-                        UsernamePasswordAuthenticationBearer::getAuthorities,
-                        UsernamePasswordAuthenticationBearer::toAuthentication);
-    }
+  public static Mono<Authentication> create(SignedJWT signedJWT) {
+    return Mono.just(signedJWT)
+        .map(silent(SignedJWT::getJWTClaimsSet))
+        .zipWhen(
+            UsernamePasswordAuthenticationBearer::getAuthorities,
+            UsernamePasswordAuthenticationBearer::toAuthentication);
+  }
 
-    private static UsernamePasswordAuthenticationToken toAuthentication(
-            JWTClaimsSet claim, List<SimpleGrantedAuthority> authorities) {
-        return new UsernamePasswordAuthenticationToken(claim.getSubject(), null, authorities);
-    }
+  private static UsernamePasswordAuthenticationToken toAuthentication(
+      JWTClaimsSet claim, List<SimpleGrantedAuthority> authorities) {
+    return new UsernamePasswordAuthenticationToken(claim.getSubject(), null, authorities);
+  }
 
-    private static Mono<List<SimpleGrantedAuthority>> getAuthorities(JWTClaimsSet jwtClaimsSet) {
-        return Mono.just(jwtClaimsSet)
-                .map(s -> s.getClaim("roles"))
-                .cast(String.class)
-                .flatMapIterable(s -> ImmutableSet.copyOf(s.split(",")))
-                .map(SimpleGrantedAuthority::new)
-                .collect(toImmutableList());
-    }
+  private static Mono<List<SimpleGrantedAuthority>> getAuthorities(JWTClaimsSet jwtClaimsSet) {
+    return Mono.just(jwtClaimsSet)
+        .map(s -> s.getClaim("roles"))
+        .cast(String.class)
+        .flatMapIterable(s -> ImmutableSet.copyOf(s.split(",")))
+        .map(SimpleGrantedAuthority::new)
+        .collect(toImmutableList());
+  }
 }

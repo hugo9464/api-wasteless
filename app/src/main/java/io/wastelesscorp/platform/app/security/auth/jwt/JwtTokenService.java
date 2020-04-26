@@ -45,75 +45,70 @@ import reactor.core.publisher.Mono;
  * If authentication is successful, a token is added in the response
  */
 public class JwtTokenService {
-    private final JWSVerifier jwsVerifier;
-    private final JWSSigner jwsSigner;
-    private final Clock clock;
+  private final JWSVerifier jwsVerifier;
+  private final JWSSigner jwsSigner;
+  private final Clock clock;
 
-    JwtTokenService(@Value("${secrets.jwt.signer}") String secret, Clock clock) {
-        try {
-            this.jwsSigner = new MACSigner(secret);
-        } catch (KeyLengthException e) {
-            throw new IllegalStateException(e);
-        }
-        try {
-            this.jwsVerifier = new MACVerifier(secret);
-        } catch (JOSEException e) {
-            throw new IllegalStateException(e);
-        }
-        this.clock = clock;
+  JwtTokenService(@Value("${secrets.jwt.signer}") String secret, Clock clock) {
+    try {
+      this.jwsSigner = new MACSigner(secret);
+    } catch (KeyLengthException e) {
+      throw new IllegalStateException(e);
     }
-    /**
-     * Create and sign a JWT object using information from the current authenticated principal
-     *
-     * @param subject Name of current principal
-     * @param credentials Credentials of current principal
-     * @param authorities A collection of granted authorities for this principal
-     * @return String representing a valid token
-     */
-    public String generateToken(
-            String subject,
-            Object credentials,
-            Collection<? extends GrantedAuthority> authorities) {
-        JWTClaimsSet claimsSet =
-                new JWTClaimsSet.Builder()
-                        .subject(subject)
-                        .issuer("wasteless.io")
-                        .expirationTime(new Date(getExpiration()))
-                        .claim(
-                                "roles",
-                                authorities.stream()
-                                        .map(GrantedAuthority.class::cast)
-                                        .map(GrantedAuthority::getAuthority)
-                                        .collect(joining(",")))
-                        .build();
-        SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
-        try {
-            signedJWT.sign(jwsSigner);
-        } catch (JOSEException e) {
-            throw new RuntimeException(e);
-        }
-        return signedJWT.serialize();
+    try {
+      this.jwsVerifier = new MACVerifier(secret);
+    } catch (JOSEException e) {
+      throw new IllegalStateException(e);
     }
+    this.clock = clock;
+  }
+  /**
+   * Create and sign a JWT object using information from the current authenticated principal
+   *
+   * @param subject Name of current principal
+   * @param credentials Credentials of current principal
+   * @param authorities A collection of granted authorities for this principal
+   * @return String representing a valid token
+   */
+  public String generateToken(
+      String subject, Object credentials, Collection<? extends GrantedAuthority> authorities) {
+    JWTClaimsSet claimsSet =
+        new JWTClaimsSet.Builder()
+            .subject(subject)
+            .issuer("wasteless.io")
+            .expirationTime(new Date(getExpiration()))
+            .claim(
+                "roles",
+                authorities.stream()
+                    .map(GrantedAuthority.class::cast)
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(joining(",")))
+            .build();
+    SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
+    try {
+      signedJWT.sign(jwsSigner);
+    } catch (JOSEException e) {
+      throw new RuntimeException(e);
+    }
+    return signedJWT.serialize();
+  }
 
-    public Mono<SignedJWT> verifyToken(String token) {
-        return Mono.fromCallable(() -> SignedJWT.parse(token))
-                .filter(
-                        defaultOnError(
-                                t ->
-                                        t.getJWTClaimsSet()
-                                                .getExpirationTime()
-                                                .after(Date.from(clock.instant())),
-                                false))
-                .filter(defaultOnError(t -> t.verify(this.jwsVerifier), false))
-                .onErrorResume(t -> Mono.empty());
-    }
-    /**
-     * Returns a millisecond time representation 24hrs from now to be used as the time the currently
-     * token will be valid
-     *
-     * @return Time representation 24 from now
-     */
-    private long getExpiration() {
-        return clock.instant().plus(ofDays(1)).toEpochMilli();
-    }
+  public Mono<SignedJWT> verifyToken(String token) {
+    return Mono.fromCallable(() -> SignedJWT.parse(token))
+        .filter(
+            defaultOnError(
+                t -> t.getJWTClaimsSet().getExpirationTime().after(Date.from(clock.instant())),
+                false))
+        .filter(defaultOnError(t -> t.verify(this.jwsVerifier), false))
+        .onErrorResume(t -> Mono.empty());
+  }
+  /**
+   * Returns a millisecond time representation 24hrs from now to be used as the time the currently
+   * token will be valid
+   *
+   * @return Time representation 24 from now
+   */
+  private long getExpiration() {
+    return clock.instant().plus(ofDays(1)).toEpochMilli();
+  }
 }

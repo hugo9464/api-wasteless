@@ -9,16 +9,16 @@ import org.immutables.value.Value;
 
 @Value.Immutable
 public interface WeightedWasteOverviewInterface {
-    ImmutableTable<Type, Instant, Integer> getFrequencies();
+  ImmutableTable<Type, Instant, Integer> getFrequencies();
 
-    Range<Instant> getPeriod();
+  Range<Instant> getPeriod();
 
-    ChronoUnit getAggregationUnit();
+  ChronoUnit getAggregationUnit();
 
-    static WeightedWasteOverview of(
-            ImmutableTable<Type, Instant, Integer> frequencies,
-            Range<Instant> period,
-            ChronoUnit aggregationUnit) {
-        return WeightedWasteOverview.of(frequencies, period, aggregationUnit);
-    }
+  static WeightedWasteOverview of(
+      ImmutableTable<Type, Instant, Integer> frequencies,
+      Range<Instant> period,
+      ChronoUnit aggregationUnit) {
+    return WeightedWasteOverview.of(frequencies, period, aggregationUnit);
+  }
 }

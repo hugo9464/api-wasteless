@@ -11,31 +11,31 @@ import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 
 final class DefaultCollectionFactory implements CollectionFactory {
-    private final MongoDatabase mongoDatabase;
-    private final ObjectMapper codecRegistryObjectMapper;
+  private final MongoDatabase mongoDatabase;
+  private final ObjectMapper codecRegistryObjectMapper;
 
-    DefaultCollectionFactory(MongoDatabase mongoDatabase, ObjectMapper codecRegistryObjectMapper) {
-        this.mongoDatabase = mongoDatabase;
-        this.codecRegistryObjectMapper = codecRegistryObjectMapper;
-    }
+  DefaultCollectionFactory(MongoDatabase mongoDatabase, ObjectMapper codecRegistryObjectMapper) {
+    this.mongoDatabase = mongoDatabase;
+    this.codecRegistryObjectMapper = codecRegistryObjectMapper;
+  }
 
-    public <T> MongoCollection<T> get(String collectionName, Class<T> clazz) {
-        return mongoDatabase
-                .withCodecRegistry(getCodecRegistry(clazz))
-                .getCollection(collectionName, clazz);
-    }
+  public <T> MongoCollection<T> get(String collectionName, Class<T> clazz) {
+    return mongoDatabase
+        .withCodecRegistry(getCodecRegistry(clazz))
+        .getCollection(collectionName, clazz);
+  }
 
-    private <T> CodecRegistry getCodecRegistry(Class<T> clazz) {
-        return CodecRegistries.fromRegistries(
-                getDefaultCodecRegistry(),
-                CodecRegistries.fromProviders(
-                        new JacksonGenericCodecProvider(
-                                codecRegistryObjectMapper,
-                                new TypeReference<T>() {
-                                    @Override
-                                    public Type getType() {
-                                        return clazz;
-                                    }
-                                })));
-    }
+  private <T> CodecRegistry getCodecRegistry(Class<T> clazz) {
+    return CodecRegistries.fromRegistries(
+        getDefaultCodecRegistry(),
+        CodecRegistries.fromProviders(
+            new JacksonGenericCodecProvider(
+                codecRegistryObjectMapper,
+                new TypeReference<T>() {
+                  @Override
+                  public Type getType() {
+                    return clazz;
+                  }
+                })));
+  }
 }

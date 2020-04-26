@@ -25,8 +25,8 @@ import reactor.core.publisher.Mono;
 
 public class AuthorizationHeaderPayload {
 
-    public static Mono<String> extract(ServerWebExchange serverWebExchange) {
-        return Mono.justOrEmpty(
-                serverWebExchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION));
-    }
+  public static Mono<String> extract(ServerWebExchange serverWebExchange) {
+    return Mono.justOrEmpty(
+        serverWebExchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION));
+  }
 }

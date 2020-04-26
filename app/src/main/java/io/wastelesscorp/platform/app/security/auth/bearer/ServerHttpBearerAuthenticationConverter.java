@@ -32,29 +32,29 @@ import reactor.core.publisher.Mono;
  * the JWT token is valid. Validity means is well formed and signature is correct.
  */
 public class ServerHttpBearerAuthenticationConverter implements ServerAuthenticationConverter {
-    private static final String BEARER = "Bearer ";
+  private static final String BEARER = "Bearer ";
 
-    private final JwtTokenService jwtVerifier;
+  private final JwtTokenService jwtVerifier;
 
-    public ServerHttpBearerAuthenticationConverter(JwtTokenService jwtTokenService) {
-        this.jwtVerifier = jwtTokenService;
-    }
+  public ServerHttpBearerAuthenticationConverter(JwtTokenService jwtTokenService) {
+    this.jwtVerifier = jwtTokenService;
+  }
 
-    /**
-     * Apply this function to the current WebExchange, an Authentication object is returned when
-     * completed.
-     *
-     * @param exchange
-     * @return
-     */
-    @Override
-    public Mono<Authentication> convert(ServerWebExchange exchange) {
-        return Mono.justOrEmpty(exchange)
-                .flatMap(AuthorizationHeaderPayload::extract)
-                .filter(authValue -> authValue.length() > BEARER.length())
-                .map(authValue -> authValue.substring(BEARER.length()))
-                .flatMap(jwtVerifier::verifyToken)
-                .flatMap(UsernamePasswordAuthenticationBearer::create)
-                .log();
-    }
+  /**
+   * Apply this function to the current WebExchange, an Authentication object is returned when
+   * completed.
+   *
+   * @param exchange
+   * @return
+   */
+  @Override
+  public Mono<Authentication> convert(ServerWebExchange exchange) {
+    return Mono.justOrEmpty(exchange)
+        .flatMap(AuthorizationHeaderPayload::extract)
+        .filter(authValue -> authValue.length() > BEARER.length())
+        .map(authValue -> authValue.substring(BEARER.length()))
+        .flatMap(jwtVerifier::verifyToken)
+        .flatMap(UsernamePasswordAuthenticationBearer::create)
+        .log();
+  }
 }
