@@ -3,6 +3,7 @@ package io.wastelesscorp.platform.atoms.user.api;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableSet;
 import org.immutables.value.Value;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 @Value.Immutable
 public interface UserInterface {

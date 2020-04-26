@@ -19,6 +19,10 @@
  */
 package io.wastelesscorp.platform.app.security.auth.jwt;
 
+import static io.wastelesscorp.platform.support.exceptions.ExceptionUtils.defaultOnError;
+import static java.time.Period.ofDays;
+import static java.util.stream.Collectors.joining;
+
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -29,17 +33,12 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import java.text.ParseException;
-import java.time.Instant;
-import java.time.Period;
+import java.time.Clock;
 import java.util.Collection;
 import java.util.Date;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import reactor.core.publisher.Mono;
-
-// TODO refactor this nasty code
 
 /**
  * A service to create JWT objects, this one is used when an exchange provides basic authentication.
@@ -48,8 +47,9 @@ import reactor.core.publisher.Mono;
 public class JwtTokenService {
     private final JWSVerifier jwsVerifier;
     private final JWSSigner jwsSigner;
+    private final Clock clock;
 
-    JwtTokenService(@Value("${secrets.jwt.signer}") String secret) {
+    JwtTokenService(@Value("${secrets.jwt.signer}") String secret, Clock clock) {
         try {
             this.jwsSigner = new MACSigner(secret);
         } catch (KeyLengthException e) {
@@ -60,6 +60,7 @@ public class JwtTokenService {
         } catch (JOSEException e) {
             throw new IllegalStateException(e);
         }
+        this.clock = clock;
     }
     /**
      * Create and sign a JWT object using information from the current authenticated principal
@@ -73,71 +74,46 @@ public class JwtTokenService {
             String subject,
             Object credentials,
             Collection<? extends GrantedAuthority> authorities) {
-        SignedJWT signedJWT;
-        JWTClaimsSet claimsSet;
-        claimsSet =
+        JWTClaimsSet claimsSet =
                 new JWTClaimsSet.Builder()
                         .subject(subject)
-                        .issuer("rapha.io")
+                        .issuer("wasteless.io")
                         .expirationTime(new Date(getExpiration()))
                         .claim(
                                 "roles",
                                 authorities.stream()
                                         .map(GrantedAuthority.class::cast)
                                         .map(GrantedAuthority::getAuthority)
-                                        .collect(Collectors.joining(",")))
+                                        .collect(joining(",")))
                         .build();
-
-        signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
-
+        SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
         try {
             signedJWT.sign(jwsSigner);
         } catch (JOSEException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-
         return signedJWT.serialize();
     }
 
     public Mono<SignedJWT> verifyToken(String token) {
-        return Mono.justOrEmpty(createJWS(token))
-                .filter(token1 -> getExpirationDate(token1).after(Date.from(Instant.now())))
+        return Mono.fromCallable(() -> SignedJWT.parse(token))
                 .filter(
-                        token2 -> {
-                            try {
-                                return token2.verify(this.jwsVerifier);
-                            } catch (JOSEException e) {
-                                e.printStackTrace();
-                                return false;
-                            }
-                        });
+                        defaultOnError(
+                                t ->
+                                        t.getJWTClaimsSet()
+                                                .getExpirationTime()
+                                                .after(Date.from(clock.instant())),
+                                false))
+                .filter(defaultOnError(t -> t.verify(this.jwsVerifier), false))
+                .onErrorResume(t -> Mono.empty());
     }
-
-    private SignedJWT createJWS(String token) {
-        try {
-            return SignedJWT.parse(token);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    private Date getExpirationDate(SignedJWT token) {
-        try {
-            return token.getJWTClaimsSet().getExpirationTime();
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     /**
      * Returns a millisecond time representation 24hrs from now to be used as the time the currently
      * token will be valid
      *
      * @return Time representation 24 from now
      */
-    private static long getExpiration() {
-        return new Date().toInstant().plus(Period.ofDays(1)).toEpochMilli();
+    private long getExpiration() {
+        return clock.instant().plus(ofDays(1)).toEpochMilli();
     }
 }

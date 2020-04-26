@@ -29,7 +29,7 @@ import reactor.core.publisher.Mono;
 
 /**
  * This converter extracts a bearer token from a WebExchange and returns an Authentication object if
- * the JWT token is valid. Validity means is well formed and signature is correct
+ * the JWT token is valid. Validity means is well formed and signature is correct.
  */
 public class ServerHttpBearerAuthenticationConverter implements ServerAuthenticationConverter {
     private static final String BEARER = "Bearer ";

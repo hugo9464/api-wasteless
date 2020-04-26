@@ -19,41 +19,43 @@
  */
 package io.wastelesscorp.platform.app.security.auth.jwt;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static io.wastelesscorp.platform.support.exceptions.ExceptionUtils.silent;
+
+import com.google.common.collect.ImmutableSet;
+import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import java.text.ParseException;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import reactor.core.publisher.Mono;
 
 /**
- * This converter takes a SignedJWT and extracts all information
- * contained to build an Authentication Object
- * The signed JWT has already been verified.
- *
+ * This converter takes a SignedJWT and extracts all information contained to build an
+ * Authentication Object. The signed JWT has already been verified.
  */
 public class UsernamePasswordAuthenticationBearer {
 
-    public static Mono<Authentication> create(SignedJWT signedJWTMono) {
-        SignedJWT signedJWT = signedJWTMono;
-        String subject;
-        String auths;
-        List authorities;
+    public static Mono<Authentication> create(SignedJWT signedJWT) {
+        return Mono.just(signedJWT)
+                .map(silent(SignedJWT::getJWTClaimsSet))
+                .zipWhen(
+                        UsernamePasswordAuthenticationBearer::getAuthorities,
+                        UsernamePasswordAuthenticationBearer::toAuthentication);
+    }
 
-        try {
-            subject = signedJWT.getJWTClaimsSet().getSubject();
-            auths = (String) signedJWT.getJWTClaimsSet().getClaim("roles");
-        } catch (ParseException e) {
-            return Mono.empty();
-        }
-        authorities = Stream.of(auths.split(","))
+    private static UsernamePasswordAuthenticationToken toAuthentication(
+            JWTClaimsSet claim, List<SimpleGrantedAuthority> authorities) {
+        return new UsernamePasswordAuthenticationToken(claim.getSubject(), null, authorities);
+    }
+
+    private static Mono<List<SimpleGrantedAuthority>> getAuthorities(JWTClaimsSet jwtClaimsSet) {
+        return Mono.just(jwtClaimsSet)
+                .map(s -> s.getClaim("roles"))
+                .cast(String.class)
+                .flatMapIterable(s -> ImmutableSet.copyOf(s.split(",")))
                 .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
-
-            return  Mono.justOrEmpty(new UsernamePasswordAuthenticationToken(subject, null, authorities));
-
+                .collect(toImmutableList());
     }
 }
