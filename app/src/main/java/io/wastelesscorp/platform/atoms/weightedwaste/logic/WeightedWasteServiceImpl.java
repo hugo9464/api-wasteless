@@ -12,7 +12,6 @@ import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteCreateRequ
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteInterface;
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteInterface.Type;
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteOverview;
-import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteOverviewInterface;
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteService;
 import io.wastelesscorp.platform.atoms.weightedwaste.logic.repository.WeightedWasteRepository;
 import java.time.Instant;
@@ -36,16 +35,15 @@ public class WeightedWasteServiceImpl implements WeightedWasteService {
 
   @Override
   public Mono<WeightedWasteOverview> getWeightedWasteOverview(
-      ImmutableSet<String> userId,
+      ImmutableSet<String> userIds,
       String challengeId,
       Range<Instant> period,
       ChronoUnit aggregationUnit) {
     return repository
-        .findAll(challengeId, userId, period)
+        .findAll(challengeId, userIds, period)
         .collect(toImmutableSet())
         .map(weightedWastes -> toFrequencies(weightedWastes, aggregationUnit))
-        .map(
-            frequencies -> WeightedWasteOverviewInterface.of(frequencies, period, aggregationUnit));
+        .map(frequencies -> WeightedWasteOverview.of(frequencies, period, aggregationUnit));
   }
 
   @Override

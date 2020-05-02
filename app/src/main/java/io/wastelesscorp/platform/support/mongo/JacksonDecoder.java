@@ -41,7 +41,6 @@ final class JacksonDecoder<T> implements Decoder<T> {
     try {
       return decode(new ByteArrayInputStream(b));
     } catch (IOException e) {
-      // Not possible
       throw new UncheckedIOException(
           "IOException encountered while reading from a byte array input stream", e);
     }

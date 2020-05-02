@@ -8,13 +8,38 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface WeightedWasteService {
+  /**
+   * Stores a new weighted waste.
+   *
+   * @param userId The user ID of the weighted waste.
+   * @param request The request to create.
+   * @return A empty {@link Mono} in case of success.
+   */
   Mono<Void> addWeightedWaste(String userId, WeightedWasteCreateRequest request);
 
+  /**
+   * Retrieves the {@link WeightedWasteOverview overview} of a challenge given the provided
+   * criteria.
+   *
+   * @param userIds The user IDs for which we need to compute the overview; empty means all users.
+   * @param challengeId The challenge ID for which we need to compute the overview.
+   * @param period The period of the overview.
+   * @param aggregationUnit The aggregation unit.
+   * @return A {@link Mono} containing the {@link WeightedWasteOverview} matching the provided
+   *     criteria.
+   */
   Mono<WeightedWasteOverview> getWeightedWasteOverview(
-      ImmutableSet<String> userId,
+      ImmutableSet<String> userIds,
       String challengeId,
       Range<Instant> period,
       ChronoUnit aggregationUnit);
 
+  /**
+   * Retrieves the {@link WeightedWaste}s of a challenge given the provided criteria.
+   *
+   * @param challengeId The challenge ID used to stored the {@link WeightedWaste}s.
+   * @param userIds The user IDs used to stored the @link WeightedWaste}s; empty means all users.
+   * @return A {@link Flux} containing the {@link WeightedWaste}s matching the provided criteria.
+   */
   Flux<WeightedWaste> getWeightedWastes(String challengeId, ImmutableSet<String> userIds);
 }

@@ -1,6 +1,4 @@
-Wasteless
-
-# The Wasteless Backen
+# The Wasteless Backend
 #### Table of contents
 * :information_source: [About](#information_source-about)
 * :construction_worker: [IDE](#information_source-ide)
