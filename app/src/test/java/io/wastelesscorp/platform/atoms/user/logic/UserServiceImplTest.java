@@ -3,12 +3,12 @@ package io.wastelesscorp.platform.atoms.user.logic;
 import static io.wastelesscorp.platform.atoms.user.api.Role.STANDARD_USER;
 
 import com.google.common.collect.ImmutableSet;
+import com.mongodb.BasicDBObject;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.wastelesscorp.platform.atoms.user.api.CreateUserRequest;
 import io.wastelesscorp.platform.atoms.user.api.User;
 import io.wastelesscorp.platform.atoms.user.api.UserService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,7 +28,7 @@ class UserServiceImplTest {
 
   @BeforeEach
   public void setUp() {
-    Mono.from(collection.drop()).block();
+    Mono.from(collection.deleteMany(new BasicDBObject())).block();
   }
 
   @Test
@@ -39,10 +39,9 @@ class UserServiceImplTest {
   }
 
   @Test
-  @Disabled("Needs to implement the feature. Use mongo unique index on email.")
   void duplicatedCreation() {
     StepVerifier.create(service.create(CREATE_REQUEST).then(service.create(CREATE_REQUEST)))
-        .verifyError();
+        .verifyError(DuplicatedUserException.class);
   }
 
   private boolean IgnoreIdCompare(User actual, User expected) {
