@@ -42,4 +42,16 @@ public interface WeightedWasteService {
    * @return A {@link Flux} containing the {@link WeightedWaste}s matching the provided criteria.
    */
   Flux<WeightedWaste> getWeightedWastes(String challengeId, ImmutableSet<String> userIds);
+
+  /**
+   * Retrieves the {@link WeightedWasteSummaryInterface}s of a challenge given the provided
+   * criteria.
+   *
+   * @param challengeId The challenge ID used to stored the {@link WeightedWaste}s.
+   * @param userIds The user IDs used to stored the @link WeightedWaste}s; empty means all users.
+   * @return A {@link Mono} containing the {@link WeightedWasteSummaryInterface} matching the
+   *     provided criteria.
+   */
+  Mono<WeightedWasteSummary> getWeightedWasteSummary(
+      String challengeId, ImmutableSet<String> userIds);
 }

@@ -1,19 +1,20 @@
 package io.wastelesscorp.platform.atoms.weightedwaste.logic;
 
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.ImmutableTable.toImmutableTable;
+import static java.util.stream.Collectors.collectingAndThen;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Range;
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWaste;
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteCreateRequest;
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteCreateRequestInterface;
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteInterface;
-import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteInterface.Type;
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteOverview;
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteService;
+import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteSummary;
 import io.wastelesscorp.platform.atoms.weightedwaste.logic.repository.WeightedWasteRepository;
+import io.wastelesscorp.platform.support.math.SeriesSummaryInterface;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import reactor.core.publisher.Flux;
@@ -41,9 +42,14 @@ public class WeightedWasteServiceImpl implements WeightedWasteService {
       ChronoUnit aggregationUnit) {
     return repository
         .findAll(challengeId, userIds, period)
-        .collect(toImmutableSet())
-        .map(weightedWastes -> toFrequencies(weightedWastes, aggregationUnit))
-        .map(frequencies -> WeightedWasteOverview.of(frequencies, period, aggregationUnit));
+        .collect(
+            collectingAndThen(
+                toImmutableTable(
+                    WeightedWaste::getType,
+                    ww -> ww.getCreatedAt().truncatedTo(aggregationUnit),
+                    WeightedWasteInterface::getWeight,
+                    Integer::sum),
+                frequencies -> WeightedWasteOverview.of(frequencies, period, aggregationUnit)));
   }
 
   @Override
@@ -51,14 +57,17 @@ public class WeightedWasteServiceImpl implements WeightedWasteService {
     return repository.findWeightedWastes(challengeId, userIds);
   }
 
-  private static ImmutableTable<Type, Instant, Integer> toFrequencies(
-      ImmutableSet<WeightedWaste> weightedWastes, ChronoUnit aggregationUnit) {
-    return weightedWastes.stream()
+  @Override
+  public Mono<WeightedWasteSummary> getWeightedWasteSummary(
+      String challengeId, ImmutableSet<String> userIds) {
+    return repository
+        .findWeightedWastes(challengeId, userIds)
         .collect(
-            toImmutableTable(
-                WeightedWaste::getType,
-                weightedWaste -> weightedWaste.getCreatedAt().truncatedTo(aggregationUnit),
-                WeightedWasteInterface::getWeight,
-                Integer::sum));
+            collectingAndThen(
+                toImmutableMap(
+                    WeightedWaste::getType,
+                    ww -> SeriesSummaryInterface.of(ww.getWeight()),
+                    SeriesSummaryInterface::merge),
+                WeightedWasteSummary::of));
   }
 }

@@ -20,7 +20,7 @@ public interface WeightedWasteOverviewInterface {
    */
   ImmutableTable<Type, Instant, Integer> getFrequencies();
 
-  /** The period of this overview. */
+  /** The period of the overview. */
   Range<Instant> getPeriod();
 
   /** The aggregation unit that defines the aggregation period. */

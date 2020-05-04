@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWaste;
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteOverview;
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteService;
+import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteSummary;
 import java.awt.*;
 import java.security.Principal;
 import java.time.Clock;
@@ -68,5 +69,14 @@ public class WeightedWasteController {
             userIds ->
                 weightedWasteService.getWeightedWasteOverview(
                     userIds, UNIQUE_CHALLENGE_ID, Range.all(), DAYS));
+  }
+
+  @GetMapping("/summary")
+  public Mono<WeightedWasteSummary> getSummary(@AuthenticationPrincipal Mono<Principal> principal) {
+    return principal
+        .map(Principal::getName)
+        .map(ImmutableSet::of)
+        .flatMap(
+            userIds -> weightedWasteService.getWeightedWasteSummary(UNIQUE_CHALLENGE_ID, userIds));
   }
 }

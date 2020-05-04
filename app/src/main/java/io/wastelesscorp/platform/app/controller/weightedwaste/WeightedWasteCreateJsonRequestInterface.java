@@ -1,13 +1,13 @@
 package io.wastelesscorp.platform.app.controller.weightedwaste;
 
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteCreateRequest;
-import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteInterface;
+import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteInterface.Type;
 import java.time.Instant;
 import org.immutables.value.Value;
 
 @Value.Immutable
 public interface WeightedWasteCreateJsonRequestInterface {
-  WeightedWasteInterface.Type getType();
+  Type getType();
 
   Integer getWeight();
 
