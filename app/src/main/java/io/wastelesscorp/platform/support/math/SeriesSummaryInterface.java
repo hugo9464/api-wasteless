@@ -15,7 +15,7 @@ public interface SeriesSummaryInterface {
   @JsonSerialize
   @Value.Lazy
   default int getAverage() {
-    return getCount() == 0 ? 0 : Math.round(getTotal() / getCount());
+    return getCount() == 0 ? 0 : Math.round((float) getTotal() / getCount());
   }
 
   default SeriesSummary merge(SeriesSummaryInterface series) {
