@@ -8,12 +8,13 @@ import static com.mongodb.client.model.Filters.lte;
 
 import com.google.common.collect.Range;
 import com.mongodb.BasicDBObject;
+import com.mongodb.client.model.IndexOptions;
 import java.util.Collection;
 import org.bson.conversions.Bson;
 
 public final class MongoUtils {
-
   private static final BasicDBObject NO_CRITERION = new BasicDBObject();
+  public static final IndexOptions UNIQUE_INDEX_OPTIONS = new IndexOptions().unique(true);
 
   private MongoUtils() {}
 

@@ -9,7 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 /** Represents a request to create an account. */
 @Value.Immutable
-public interface SignupRequestJsonInterface {
+interface SignupRequestJsonInterface {
   /** The user's email. */
   String getEmail();
 

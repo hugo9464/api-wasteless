@@ -6,7 +6,7 @@ import java.time.Instant;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface WeightedWasteCreateJsonRequestInterface {
+interface WeightedWasteCreateJsonRequestInterface {
   Type getType();
 
   Integer getWeight();

@@ -21,7 +21,7 @@ class UserServiceImplTest {
       CreateUserRequest.of(
           "email", "password", "firstname", "lastname", ImmutableSet.of(STANDARD_USER));
   private static final User EXPECTED_USER =
-      User.of("id", "email", "password", "firstname", "lastname", ImmutableSet.of(STANDARD_USER));
+      User.of("email", "password", "firstname", "lastname", ImmutableSet.of(STANDARD_USER));
 
   @Autowired UserService service;
   @Autowired MongoCollection<User> collection;

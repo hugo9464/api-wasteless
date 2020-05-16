@@ -32,13 +32,13 @@ public class WeightedWasteController {
   private final WeightedWasteService weightedWasteService;
   private final Clock clock;
 
-  public WeightedWasteController(WeightedWasteService weightedWasteService, Clock clock) {
+  WeightedWasteController(WeightedWasteService weightedWasteService, Clock clock) {
     this.weightedWasteService = weightedWasteService;
     this.clock = clock;
   }
 
   @GetMapping
-  public Flux<WeightedWaste> getWeightedWastes(@AuthenticationPrincipal Mono<Principal> principal) {
+  Flux<WeightedWaste> getWeightedWastes(@AuthenticationPrincipal Mono<Principal> principal) {
     return principal
         .map(Principal::getName)
         .map(ImmutableSet::of)
@@ -48,7 +48,7 @@ public class WeightedWasteController {
 
   @PostMapping
   @ResponseStatus(NO_CONTENT)
-  public Mono<Void> addWeightedWaste(
+  Mono<Void> addWeightedWaste(
       @AuthenticationPrincipal Mono<Principal> principal,
       @RequestBody WeightedWasteCreateJsonRequest request) {
     return principal
@@ -60,8 +60,7 @@ public class WeightedWasteController {
   }
 
   @GetMapping("/overview")
-  public Mono<WeightedWasteOverview> getOverview(
-      @AuthenticationPrincipal Mono<Principal> principal) {
+  Mono<WeightedWasteOverview> getOverview(@AuthenticationPrincipal Mono<Principal> principal) {
     return principal
         .map(Principal::getName)
         .map(ImmutableSet::of)
@@ -72,7 +71,7 @@ public class WeightedWasteController {
   }
 
   @GetMapping("/summary")
-  public Mono<WeightedWasteSummary> getSummary(@AuthenticationPrincipal Mono<Principal> principal) {
+  Mono<WeightedWasteSummary> getSummary(@AuthenticationPrincipal Mono<Principal> principal) {
     return principal
         .map(Principal::getName)
         .map(ImmutableSet::of)

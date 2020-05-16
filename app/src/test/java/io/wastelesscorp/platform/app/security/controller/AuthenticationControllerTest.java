@@ -114,7 +114,6 @@ class AuthenticationControllerTest {
   private void mockUserService() {
     User validUser =
         User.of(
-            USER_ID,
             EMAIL,
             FIRSTNAME,
             LASTNAME,

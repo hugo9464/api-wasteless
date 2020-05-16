@@ -1,9 +1,9 @@
 package io.wastelesscorp.platform.atoms.user.logic.repository;
 
 import static com.mongodb.client.model.Filters.eq;
+import static io.wastelesscorp.platform.support.mongo.MongoUtils.UNIQUE_INDEX_OPTIONS;
 
 import com.mongodb.MongoWriteException;
-import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.wastelesscorp.platform.atoms.user.api.User;
@@ -34,7 +34,6 @@ public class UserRepository implements ApplicationListener<ApplicationReadyEvent
 
   @Override
   public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
-    IndexOptions uniqueOptions = new IndexOptions().unique(true);
-    Mono.from(userCollection.createIndex(Indexes.ascending(EMAIL), uniqueOptions)).block();
+    Mono.from(userCollection.createIndex(Indexes.ascending(EMAIL), UNIQUE_INDEX_OPTIONS)).block();
   }
 }

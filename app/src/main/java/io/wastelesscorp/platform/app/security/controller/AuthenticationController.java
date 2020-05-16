@@ -17,19 +17,19 @@ public class AuthenticationController {
   private final PasswordEncoder passwordEncoder;
   private final UserService userService;
 
-  public AuthenticationController(PasswordEncoder passwordEncoder, UserService userService) {
+  AuthenticationController(PasswordEncoder passwordEncoder, UserService userService) {
     this.passwordEncoder = passwordEncoder;
     this.userService = userService;
   }
 
   @PostMapping(value = "/signup")
-  public Mono<Void> signup(@RequestBody SignupRequestJson request) {
+  Mono<Void> signup(@RequestBody SignupRequestJson request) {
     return Mono.fromSupplier(() -> request.toCreateUserRequest(passwordEncoder))
         .flatMap(userService::create);
   }
 
   @GetMapping(value = "/login")
-  public Mono<String> dumbEndpoint() {
+  Mono<String> dumbEndpoint() {
     return Mono.empty();
   }
 }

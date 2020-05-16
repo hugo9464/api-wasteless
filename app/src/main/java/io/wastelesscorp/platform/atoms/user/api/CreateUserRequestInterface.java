@@ -1,7 +1,6 @@
 package io.wastelesscorp.platform.atoms.user.api;
 
 import com.google.common.collect.ImmutableSet;
-import java.util.UUID;
 import org.immutables.value.Value;
 
 /** Represents a request to create an user. */
@@ -23,12 +22,6 @@ public interface CreateUserRequestInterface {
   ImmutableSet<Role> getRoles();
 
   default User toUser() {
-    return User.of( // TODO should be some how an object id.
-        UUID.randomUUID().toString(),
-        getEmail(),
-        getFirstName(),
-        getLastName(),
-        getPassword(),
-        getRoles());
+    return User.of(getEmail(), getFirstName(), getLastName(), getPassword(), getRoles());
   }
 }
