@@ -5,6 +5,7 @@ import static io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteInt
 import static java.time.ZoneId.systemDefault;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.HOURS;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableTable;
@@ -50,7 +51,7 @@ class WeightedWasteServiceImplTest {
             service
                 .addWeightedWaste(USER_ID, CREATE_REQUEST)
                 .thenMany(service.getWeightedWastes(CHALLENGE_ID, ImmutableSet.of(USER_ID))))
-        .expectNext(EXPECTED_WEIGHTED_WASTE)
+        .consumeNextWith(ww -> assertThat(ww).isEqualTo(EXPECTED_WEIGHTED_WASTE.withId(ww.getId())))
         .verifyComplete();
   }
 
