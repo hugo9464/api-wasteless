@@ -2,10 +2,13 @@ package io.wastelesscorp.platform.app.controller.weightedwaste;
 
 import static io.wastelesscorp.platform.app.controller.weightedwaste.WeightedWasteController.UNIQUE_CHALLENGE_ID;
 import static io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteInterface.Type.BLUE;
+import static io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteInterface.Type.GREEN;
+import static java.time.Instant.EPOCH;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.csrf;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Range;
@@ -13,9 +16,10 @@ import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWaste;
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteCreateRequest;
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteOverview;
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteService;
+import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteSummary;
 import io.wastelesscorp.platform.support.WebFluxConfig;
+import io.wastelesscorp.platform.support.math.SeriesSummary;
 import java.time.Clock;
-import java.time.Instant;
 import java.time.ZoneId;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +42,12 @@ import reactor.test.publisher.PublisherProbe;
 class WeightedWasteControllerTest {
   private static final String USER_ID = "user_id";
   private static final WeightedWaste WEIGHTED_WASTE =
-      WeightedWaste.of(UNIQUE_CHALLENGE_ID, USER_ID, BLUE, 20, Instant.EPOCH);
+      WeightedWaste.of(UNIQUE_CHALLENGE_ID, USER_ID, BLUE, 20, EPOCH);
   private static final WeightedWasteOverview OVERVIEW =
       WeightedWasteOverview.of(ImmutableTable.of(), Range.all(), DAYS);
+  private static final WeightedWasteSummary SUMMARY =
+      WeightedWasteSummary.of(
+          ImmutableMap.of(GREEN, SeriesSummary.of(60, 3), BLUE, SeriesSummary.of(20, 1)));
   @MockBean private WeightedWasteService weightedWasteService;
   @Autowired private WebTestClient webTestClient;
   @Autowired private Clock clock;
@@ -81,9 +88,24 @@ class WeightedWasteControllerTest {
   }
 
   @Test
+  void getSummary() {
+    when(weightedWasteService.getWeightedWasteSummary(
+            UNIQUE_CHALLENGE_ID, ImmutableSet.of(USER_ID)))
+        .thenReturn(Mono.just(SUMMARY));
+    webTestClient
+        .get()
+        .uri("/api/app/weightedwaste/1/summary")
+        .exchange()
+        .expectStatus()
+        .isOk()
+        .expectBody(WeightedWasteSummary.class)
+        .isEqualTo(SUMMARY);
+  }
+
+  @Test
   void getOverview() {
     when(weightedWasteService.getWeightedWasteOverview(
-            ImmutableSet.of(USER_ID), UNIQUE_CHALLENGE_ID, Range.all(), DAYS))
+            UNIQUE_CHALLENGE_ID, ImmutableSet.of(USER_ID), Range.all(), DAYS))
         .thenReturn(Mono.just(OVERVIEW));
     webTestClient
         .get()
@@ -100,7 +122,7 @@ class WeightedWasteControllerTest {
   static class Config {
     @Bean
     Clock clock() {
-      return Clock.fixed(Instant.EPOCH, ZoneId.systemDefault());
+      return Clock.fixed(EPOCH, ZoneId.systemDefault());
     }
   }
 }

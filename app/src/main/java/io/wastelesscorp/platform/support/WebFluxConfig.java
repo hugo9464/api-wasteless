@@ -5,6 +5,7 @@ import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE;
 import static com.fasterxml.jackson.annotation.PropertyAccessor.ALL;
 import static com.fasterxml.jackson.annotation.PropertyAccessor.CREATOR;
 import static com.fasterxml.jackson.annotation.PropertyAccessor.FIELD;
+import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
 import static io.swagger.v3.oas.models.security.SecurityScheme.In.HEADER;
 import static io.swagger.v3.oas.models.security.SecurityScheme.Type.HTTP;
 
@@ -80,7 +81,8 @@ public class WebFluxConfig {
         .setVisibility(ALL, NONE)
         .setVisibility(CREATOR, ANY)
         .setVisibility(FIELD, ANY)
-        .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+        .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
+        .disable(FAIL_ON_UNKNOWN_PROPERTIES);
   }
 
   public static class TableSerializer extends JsonSerializer<ImmutableTable> {

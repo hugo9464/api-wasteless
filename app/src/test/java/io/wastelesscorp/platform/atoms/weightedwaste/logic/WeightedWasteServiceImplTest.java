@@ -2,11 +2,13 @@ package io.wastelesscorp.platform.atoms.weightedwaste.logic;
 
 import static io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteInterface.Type.BLUE;
 import static io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteInterface.Type.GREEN;
+import static java.time.Instant.EPOCH;
 import static java.time.ZoneId.systemDefault;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Range;
@@ -16,9 +18,10 @@ import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteCreateRequ
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteInterface.Type;
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteOverview;
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteService;
+import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteSummary;
+import io.wastelesscorp.platform.support.math.SeriesSummary;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +32,7 @@ import reactor.test.StepVerifier;
 
 @SpringBootTest(classes = WeightedWasteServiceConfig.class)
 class WeightedWasteServiceImplTest {
-  private static final Clock CLOCK = Clock.fixed(Instant.EPOCH, systemDefault());
+  private static final Clock CLOCK = Clock.fixed(EPOCH, systemDefault());
   private static final String CHALLENGE_ID = "challenge_id";
   private static final String USER_ID = "user_id";
   private static final WeightedWasteCreateRequest CREATE_REQUEST =
@@ -56,29 +59,43 @@ class WeightedWasteServiceImplTest {
   }
 
   @Test
-  void overview() {
-    Instant instant = CREATE_REQUEST.getCreatedAt();
-    Range<Instant> period = Range.all();
-    ChronoUnit aggregationUnit = DAYS;
+  void summary() {
     StepVerifier.create(
-            Flux.just(
-                    CREATE_REQUEST,
-                    CREATE_REQUEST.withType(BLUE),
-                    CREATE_REQUEST.withCreatedAt(instant.plus(1, HOURS)),
-                    CREATE_REQUEST.withCreatedAt(instant.plus(1, DAYS)))
-                .flatMap(request -> service.addWeightedWaste(USER_ID, request))
+            createWeigtedWastes()
+                .thenMany(service.getWeightedWasteSummary(CHALLENGE_ID, ImmutableSet.of(USER_ID))))
+        .expectNext(
+            WeightedWasteSummary.of(
+                ImmutableMap.of(GREEN, SeriesSummary.of(60, 3), BLUE, SeriesSummary.of(20, 1))))
+        .verifyComplete();
+  }
+
+  @Test
+  void overview() {
+    Range<Instant> period = Range.all();
+    StepVerifier.create(
+            createWeigtedWastes()
                 .then(
                     service.getWeightedWasteOverview(
-                        ImmutableSet.of(USER_ID), CHALLENGE_ID, period, DAYS)))
+                        CHALLENGE_ID, ImmutableSet.of(USER_ID), period, DAYS)))
         .expectNext(
             WeightedWasteOverview.of(
                 ImmutableTable.<Type, Instant, Integer>builder()
-                    .put(GREEN, Instant.EPOCH, 40)
-                    .put(BLUE, Instant.EPOCH, 20)
-                    .put(GREEN, Instant.EPOCH.plus(1, DAYS), 20)
+                    .put(GREEN, EPOCH, 40)
+                    .put(BLUE, EPOCH, 20)
+                    .put(GREEN, EPOCH.plus(1, DAYS), 20)
                     .build(),
                 period,
-                aggregationUnit))
+                DAYS))
         .verifyComplete();
+  }
+
+  private Flux<Void> createWeigtedWastes() {
+    Instant baseInstant = CREATE_REQUEST.getCreatedAt();
+    return Flux.just(
+            CREATE_REQUEST,
+            CREATE_REQUEST.withType(BLUE),
+            CREATE_REQUEST.withCreatedAt(baseInstant.plus(1, HOURS)),
+            CREATE_REQUEST.withCreatedAt(baseInstant.plus(1, DAYS)))
+        .flatMap(request -> service.addWeightedWaste(USER_ID, request));
   }
 }

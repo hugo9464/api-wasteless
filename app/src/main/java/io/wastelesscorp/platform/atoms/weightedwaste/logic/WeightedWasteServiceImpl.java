@@ -36,8 +36,8 @@ public class WeightedWasteServiceImpl implements WeightedWasteService {
 
   @Override
   public Mono<WeightedWasteOverview> getWeightedWasteOverview(
-      ImmutableSet<String> userIds,
       String challengeId,
+      ImmutableSet<String> userIds,
       Range<Instant> period,
       ChronoUnit aggregationUnit) {
     return repository

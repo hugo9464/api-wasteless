@@ -11,7 +11,6 @@ import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWaste;
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteOverview;
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteService;
 import io.wastelesscorp.platform.atoms.weightedwaste.api.WeightedWasteSummary;
-import java.awt.*;
 import java.security.Principal;
 import java.time.Clock;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -67,7 +66,7 @@ public class WeightedWasteController {
         .flatMap(
             userIds ->
                 weightedWasteService.getWeightedWasteOverview(
-                    userIds, UNIQUE_CHALLENGE_ID, Range.all(), DAYS));
+                    UNIQUE_CHALLENGE_ID, userIds, Range.all(), DAYS));
   }
 
   @GetMapping("/summary")

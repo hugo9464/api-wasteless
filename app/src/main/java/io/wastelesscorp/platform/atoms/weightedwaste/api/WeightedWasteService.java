@@ -21,16 +21,16 @@ public interface WeightedWasteService {
    * Retrieves the {@link WeightedWasteOverview overview} of a challenge given the provided
    * criteria.
    *
-   * @param userIds The user IDs for which we need to compute the overview; empty means all users.
    * @param challengeId The challenge ID for which we need to compute the overview.
+   * @param userIds The user IDs for which we need to compute the overview; empty means all users.
    * @param period The period of the overview.
    * @param aggregationUnit The aggregation unit.
    * @return A {@link Mono} containing the {@link WeightedWasteOverview} matching the provided
    *     criteria.
    */
   Mono<WeightedWasteOverview> getWeightedWasteOverview(
-      ImmutableSet<String> userIds,
       String challengeId,
+      ImmutableSet<String> userIds,
       Range<Instant> period,
       ChronoUnit aggregationUnit);
 
